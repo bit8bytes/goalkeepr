@@ -1,16 +1,17 @@
 package main
 
 import (
-	"io"
 	"net/http"
+
+	"github.com/bit8bytes/goalkeepr/ui"
 )
 
 func (app *app) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Welcome from Goalkeepr!")
-	})
+	mux.Handle("/static/", ui.ServeStaticFiles())
+
+	mux.HandleFunc("/", app.home)
 
 	return mux
 }

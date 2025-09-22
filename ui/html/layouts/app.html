@@ -1,0 +1,22 @@
+{{define "app"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content='{{template "description" .}}' />
+    <meta
+      name="keywords"
+      content="Goalkeeper makes it simple to track your annual goals."
+    />
+    <title>{{template "title" .}} - Goalkeepr</title>
+    <link rel="stylesheet" href="/static/dist/index.css" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header>{{ template "header" . }}</header>
+    <main>{{template "main" . }}</main>
+    <footer>{{ template "footer" . }}</footer>
+  </body>
+</html>
+{{end}}

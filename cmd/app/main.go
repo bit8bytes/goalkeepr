@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"html/template"
 	"log/slog"
 	"os"
 	"sync"
@@ -13,8 +14,9 @@ type config struct {
 }
 
 type app struct {
-	config config
-	logger *slog.Logger
+	config        config
+	logger        *slog.Logger
+	templateCache map[string]*template.Template
 
 	wg sync.WaitGroup
 }
@@ -30,9 +32,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error("Error creating template cache", "err", err)
+		os.Exit(1)
+	}
+
 	app := app{
-		config: cfg,
-		logger: logger,
+		config:        cfg,
+		templateCache: templateCache,
+		logger:        logger,
 	}
 
 	if err := app.serve(); err != nil {

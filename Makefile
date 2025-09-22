@@ -25,6 +25,12 @@ run:
 	@echo 'Start the app in development mode...'
 	@go run ./cmd/app -env=dev
 
+## tw: run tw
+.PHONY: tw
+tw:
+	npx @tailwindcss/cli -i ./ui/static/css/index.css -o ./ui/static/dist/index.css --watch -m
+
+
 # ==================================================================================== #
 # QUALITY CONTROL
 # ==================================================================================== #
