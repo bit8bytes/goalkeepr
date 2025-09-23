@@ -13,10 +13,12 @@
     <link rel="stylesheet" href="/static/dist/index.css" />
     <link rel="icon" href="data:," />
   </head>
-  <body class="min-h-screen flex flex-col">
-    <header>{{ template "header" . }}</header>
-    <main>{{template "main" . }}</main>
-    <footer>{{ template "footer" . }}</footer>
+  <body class="flex flex-col min-h-screen">
+    {{ template "header" . }}
+    <main class="flex-1 flex items-center justify-center">
+      {{template "main" . }}
+    </main>
+    {{ template "footer" . }}
   </body>
 </html>
 {{end}}

@@ -13,6 +13,14 @@ var functions = template.FuncMap{}
 
 type cache map[string]*template.Template
 
+type templateData struct {
+	Metadata metadata
+}
+
+type metadata struct {
+	Year int
+}
+
 func newTemplateCache() (cache, error) {
 	cache := cache{}
 

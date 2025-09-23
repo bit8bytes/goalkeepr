@@ -1,1 +1,17 @@
-{{define "footer"}} Footer {{end}}
+{{define "footer"}}
+<footer
+  class="flex w-full mx-auto max-w-7xl h-[72px] items-center justify-between px-4 text-base-content/50"
+>
+  <div class="text-sm">&copy; Goalkeepr {{ .Metadata.Year }}</div>
+  <div class="text-sm">
+    <ul class="flex">
+      <li>
+        <a href="/privacy" class="link py-4 px-2">Privacy</a>
+      </li>
+      <li>
+        <a href="/settings" class="link py-4 px-2">Settings</a>
+      </li>
+    </ul>
+  </div>
+</footer>
+{{end}}

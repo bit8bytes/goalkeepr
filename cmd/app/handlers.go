@@ -8,5 +8,6 @@ import (
 )
 
 func (app *app) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, layout.App, page.Home, nil)
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusOK, layout.App, page.Home, data)
 }
