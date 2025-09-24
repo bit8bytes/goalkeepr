@@ -1,6 +1,8 @@
-// Package pages provides constants for all HTML pages.
 package page
 
 const (
-	Home = "home.html"
+	Goals   = "goals.html"    // layout: app
+	AddGoal = "add-goal.html" // layout: app
+
+	Settings = "settings.html" // layout: settings
 )

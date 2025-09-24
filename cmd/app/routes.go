@@ -11,7 +11,11 @@ func (app *app) routes() http.Handler {
 
 	mux.Handle("/static/", ui.ServeStaticFiles())
 
-	mux.HandleFunc("/", app.home)
+	mux.Handle("/", http.RedirectHandler("/goals", http.StatusSeeOther))
+	mux.HandleFunc("/goals", app.getGoals)
+	mux.HandleFunc("/goals/add", app.getAddGoal)
+
+	mux.HandleFunc("/settings", app.getSettings)
 
 	return mux
 }

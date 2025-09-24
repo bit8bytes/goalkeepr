@@ -2,5 +2,6 @@
 package layout
 
 const (
-	App string = "app"
+	App      string = "app"
+	Settings string = "settings"
 )

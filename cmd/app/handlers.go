@@ -7,7 +7,17 @@ import (
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
-func (app *app) home(w http.ResponseWriter, r *http.Request) {
+func (a *app) getGoals(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
-	app.render(w, r, http.StatusOK, layout.App, page.Home, data)
+	a.render(w, r, http.StatusOK, layout.App, page.Goals, data)
+}
+
+func (a *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
+}
+
+func (a *app) getSettings(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
 }
