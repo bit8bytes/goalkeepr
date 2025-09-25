@@ -12,7 +12,7 @@
     <label class="label">Goal</label>
     <textarea type="text" class="textarea" placeholder="My goal"></textarea>
 
-    <label class="label">Achieved At</label>
+    <label class="label">Due</label>
     <input type="date" class="input" />
 
     <label class="label">
@@ -25,7 +25,43 @@
       Visible to the public after shared
     </label>
 
-    <button class="btn btn-neutral mt-4">Save</button>
+    <div class="grid grid-cols-4 gap-1 mt-4">
+      <button class="btn btn-neutral col-span-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-check-icon lucide-check"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+        Save
+      </button>
+      <button class="btn">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-trash-icon lucide-trash"
+        >
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+      </button>
+    </div>
   </fieldset>
 </div>
 {{ end }}
