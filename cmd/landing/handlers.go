@@ -1,0 +1,13 @@
+package main
+
+import (
+	"net/http"
+
+	"github.com/bit8bytes/goalkeepr/ui/layout"
+	"github.com/bit8bytes/goalkeepr/ui/page"
+)
+
+func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)
+}

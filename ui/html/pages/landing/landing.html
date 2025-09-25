@@ -1,0 +1,133 @@
+{{define "title"}}Home{{end}} {{define "description"}}Goalkeeper{{end}} {{define
+"main"}}
+<div class="hero bg-base-200 min-h-screen">
+  <div class="hero-content text-center">
+    <div class="max-w-2xl">
+      <h1 class="text-5xl font-bold">Turn Your Goals Into a Clear Timeline.</h1>
+      <p class="py-6">
+        Goalkeepr helps you map out your goals on a simple timeline. Share it
+        with stakeholders, stay accountable, and keep sight of the bigger
+        picture.
+      </p>
+      <a href="/signup" class="btn btn-primary">Start Your Timeline</a>
+      <a href="#how" class="btn">How it works</a>
+    </div>
+  </div>
+</div>
+<section id="how" class="py-16 bg-base-100">
+  <div class="max-w-2xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">How it works.</h2>
+      <p class="text-lg text-base-content/70">
+        Clarity. Progress. Accountability.
+      </p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body text-center">
+          <div
+            class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl font-bold text-primary-content">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-target-icon lucide-target"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
+            </span>
+          </div>
+          <h3 class="card-title justify-center text-xl mb-2">Create</h3>
+          <p class="text-base-content/80">
+            Add your annual goals to your timeline.
+          </p>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body text-center">
+          <div
+            class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl font-bold text-secondary-content"
+              ><svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-route-icon lucide-route"
+              >
+                <circle cx="6" cy="19" r="3" />
+                <path
+                  d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"
+                />
+                <circle cx="18" cy="5" r="3" />
+              </svg>
+            </span>
+          </div>
+          <h3 class="card-title justify-center text-xl mb-2">Track</h3>
+          <p class="text-base-content/80">
+            See your progress unfold over time.
+          </p>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body text-center">
+          <div
+            class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl font-bold text-accent-content">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-line-squiggle-icon lucide-line-squiggle"
+              >
+                <path
+                  d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"
+                />
+              </svg>
+            </span>
+          </div>
+          <h3 class="card-title justify-center text-xl mb-2">Share</h3>
+          <p class="text-base-content/80">
+            Keep stakeholders aligned by sharing your timeline.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="py-16 bg-primary">
+  <div class="container mx-auto px-4">
+    <div class="card bg-base-100 shadow-2xl max-w-2xl mx-auto">
+      <div class="card-body text-center py-12 items-center">
+        <h3 class="text-3xl font-bold mb-6">Your vision, made simple.</h3>
+        <a href="/signup" class="btn btn-primary btn-lg w-fit"
+          >Create Your First Timeline</a
+        >
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}

@@ -2,7 +2,9 @@
 package layout
 
 const (
-	App      string = "app"
-	Settings string = "settings"
-	Share    string = "share"
+	App      string = "app"      // cmd/app
+	Settings string = "settings" // cmd/app
+	Share    string = "share"    // cmd/app
+
+	Landing string = "landing" // cmd/www
 )

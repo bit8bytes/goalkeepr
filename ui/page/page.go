@@ -9,4 +9,6 @@ const (
 	Settings = "settings.html" // layout: settings
 
 	Share = "share.html" // layout: share
+
+	Landing = "landing.html" // layout: landing
 )

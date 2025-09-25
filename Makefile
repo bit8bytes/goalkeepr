@@ -19,11 +19,17 @@ confirm:
 # DEVELOPMENT
 # ==================================================================================== #
 
-## run: run the cmd application
-.PHONY: run
-run:
+## run/app: run the application
+.PHONY: run/app
+run/app:
 	@echo 'Start the app in development mode...'
 	@go run ./cmd/app -env=dev
+
+## run/landing: run the landing website
+.PHONY: run/landing
+run/www:
+	@echo 'Start the landing website in development mode...'
+	@go run ./cmd/landing -env=dev
 
 ## tw: run tw
 .PHONY: tw
