@@ -15,7 +15,9 @@
   </head>
   <body class="flex flex-col min-h-screen">
     {{ template "header" . }}
-    <main class="flex-1 flex items-center justify-center">
+    <main
+      class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"
+    >
       {{template "main" . }}
     </main>
     {{ template "footer" . }}

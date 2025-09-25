@@ -1,4 +1,4 @@
-{{define "title"}}Add Goal{{end}} {{define "description"}}Add a Goal{{end}}
+{{define "title"}}Edit Goal{{end}} {{define "description"}}Edit Your Goal{{end}}
 {{define "main"}}
 <div class="flex flex-col gap-2">
   <a href="/" class="text-base-content/50 hover:text-base-content"
@@ -7,7 +7,7 @@
   <fieldset
     class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
   >
-    <legend class="fieldset-legend">Add Goal</legend>
+    <legend class="fieldset-legend">Edit Goal</legend>
 
     <label class="label">Goal</label>
     <textarea type="text" class="textarea" placeholder="My goal"></textarea>
@@ -17,10 +17,15 @@
 
     <label class="label">
       <input type="checkbox" class="checkbox" />
+      Achieved
+    </label>
+
+    <label class="label">
+      <input type="checkbox" class="checkbox" />
       Visible to the public after shared
     </label>
 
-    <button class="btn btn-neutral mt-4">Add</button>
+    <button class="btn btn-neutral mt-4">Save</button>
   </fieldset>
 </div>
 {{ end }}

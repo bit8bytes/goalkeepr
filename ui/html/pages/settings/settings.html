@@ -1,33 +1,36 @@
 {{define "title"}}Settings{{end}} {{define "description"}}Settings Page{{end}}
 {{define "main"}}
-<div class="flex flex-col gap-4">
-  <hgroup>
-    <h1 class="text-2xl font-bold">Settings</h1>
-    <p class="text-base-content/50">
-      Oversee and modify your personal information.
-    </p>
-  </hgroup>
-  <div class="card card-border bg-base-100 w-full">
-    <div class="card-body">
-      <h2 class="card-title">Account</h2>
-      <fieldset class="fieldset">
-        <legend class="fieldset-legend">Email</legend>
-        <input type="text" class="input" placeholder="john@doe.com" disabled />
-      </fieldset>
+<div class="flex flex-col gap-2">
+  <a href="/" class="text-base-content/50 hover:text-base-content"
+    >&larr; Back</a
+  >
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+  >
+    <legend class="fieldset-legend">Account</legend>
+
+    <label class="label">Email</label>
+    <input type="email" class="input" placeholder="john@doe.com" disabled />
+  </fieldset>
+
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+  >
+    <legend class="fieldset-legend">Goals</legend>
+
+    <label class="label">Branding</label>
+    <input type="text" class="input" placeholder="Goalkeepr" />
+  </fieldset>
+
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+  >
+    <legend class="fieldset-legend">Danger Zone</legend>
+
+    <div class="flex justify-between items-center">
+      <p>Delete Your Account</p>
+      <button class="btn btn-error w-24">Delete</button>
     </div>
-  </div>
-  <div class="card card-border border-error bg-base-100 w-full">
-    <div class="card-body">
-      <h2 class="card-title text-error">Danger Zone</h2>
-      <div class="flex justify-between items-center">
-        <p>Reset Your Password</p>
-        <button class="btn btn-warning w-24">Reset</button>
-      </div>
-      <div class="flex justify-between items-center">
-        <p>Delete Your Account</p>
-        <button class="btn btn-error w-24">Delete</button>
-      </div>
-    </div>
-  </div>
+  </fieldset>
 </div>
 {{ end }}

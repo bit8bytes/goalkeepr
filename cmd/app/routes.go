@@ -14,6 +14,8 @@ func (app *app) routes() http.Handler {
 	mux.Handle("/", http.RedirectHandler("/goals", http.StatusSeeOther))
 	mux.HandleFunc("/goals", app.getGoals)
 	mux.HandleFunc("/goals/add", app.getAddGoal)
+	mux.HandleFunc("/goals/{id}", app.getEditGoal)
+	mux.HandleFunc("/goals/share", app.getShareGoals)
 
 	mux.HandleFunc("/settings", app.getSettings)
 

@@ -17,6 +17,16 @@ func (a *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
 	a.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
 }
 
+func (a *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
+}
+
+func (a *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
+}
+
 func (a *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
 	a.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
