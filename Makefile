@@ -27,7 +27,7 @@ run/app:
 
 ## run/landing: run the landing website
 .PHONY: run/landing
-run/www:
+run/landing:
 	@echo 'Start the landing website in development mode...'
 	@go run ./cmd/landing -env=dev
 
