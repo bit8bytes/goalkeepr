@@ -4,4 +4,5 @@ package layout
 const (
 	App      string = "app"
 	Settings string = "settings"
+	Share    string = "share"
 )

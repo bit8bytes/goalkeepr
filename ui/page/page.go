@@ -7,4 +7,6 @@ const (
 	ShareGoals = "share-goals.html" // layout: app
 
 	Settings = "settings.html" // layout: settings
+
+	Share = "share.html" // layout: share
 )

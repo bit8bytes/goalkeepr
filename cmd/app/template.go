@@ -42,6 +42,12 @@ func newTemplateCache() (cache, error) {
 			pages:  []string{"html/pages/settings/*.html"},
 			extras: []string{"html/partials/app/*.html"},
 		},
+		{
+			name:   layout.Share,
+			layout: "html/layouts/share.html",
+			pages:  []string{"html/pages/share/*.html"},
+			extras: []string{"html/partials/share/*.html"},
+		},
 	}
 
 	for _, l := range layouts {

@@ -31,3 +31,8 @@ func (a *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
 	a.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
 }
+
+func (a *app) getShare(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.Share, page.Share, data)
+}
