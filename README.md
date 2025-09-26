@@ -2,4 +2,6 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Goalkeeper makes it simple to track and share your annual goals. It helps you stay on track with reminders so you can check them off and grow into the best version of yourself.
+Turn Your Goals Into a Clear Timeline.
+
+Goalkeepr helps you map out your goals on a simple timeline. Share it with stakeholders, stay accountable, and keep sight of the bigger picture.
