@@ -1,0 +1,24 @@
+{{define "title"}}Register{{end}} {{define "description"}}Regiser an
+Account{{end}} {{define "main"}}
+<fieldset
+  class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+>
+  <legend class="fieldset-legend">Register</legend>
+
+  <label class="label">Email</label>
+  <input type="email" class="input" placeholder="Email" />
+
+  <label class="label">Password</label>
+  <input type="password" class="input" placeholder="Password" />
+
+  <label class="label">Repeat Password</label>
+  <input type="password" class="input" placeholder="Repeat Password" />
+
+  <button class="btn btn-neutral mt-4">Register</button>
+
+  <p class="text-sm">
+    Already have an account?
+    <a href="/signin" class="link hover:link-accent">Login</a>
+  </p>
+</fieldset>
+{{ end }}

@@ -47,6 +47,17 @@ func newTemplateCache() (cache, error) {
 			layout: "html/layouts/share.html",
 			pages:  []string{"html/pages/share/*.html"},
 			extras: []string{"html/partials/share/*.html"},
+		}, {
+			name:   layout.Share,
+			layout: "html/layouts/share.html",
+			pages:  []string{"html/pages/share/*.html"},
+			extras: []string{"html/partials/share/*.html"},
+		},
+		{
+			name:   layout.Auth,
+			layout: "html/layouts/auth.html",
+			pages:  []string{"html/pages/auth/*.html"},
+			extras: []string{"html/partials/share/*.html"},
 		},
 	}
 

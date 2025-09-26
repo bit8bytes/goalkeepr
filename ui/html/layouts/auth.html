@@ -1,0 +1,26 @@
+{{ define "auth" }}
+<!DOCTYPE html>
+<html lang="en" data-theme="retro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content='{{template "description" .}}' />
+    <meta
+      name="keywords"
+      content="Goalkeeper makes it simple to track and share your annual goals."
+    />
+    <title>{{template "title" .}} - Goalkeepr</title>
+    <link rel="stylesheet" href="/static/dist/index.css" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body class="flex flex-col min-h-screen">
+    {{ template "header" . }}
+    <main
+      class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"
+    >
+      {{template "main" . }}
+    </main>
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

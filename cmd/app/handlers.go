@@ -7,6 +7,16 @@ import (
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
+func (a *app) getSignUp(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
+}
+
+func (a *app) getSignIn(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	a.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
+}
+
 func (a *app) getGoals(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
 	a.render(w, r, http.StatusOK, layout.App, page.Goals, data)
