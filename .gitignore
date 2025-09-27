@@ -21,6 +21,9 @@
 go.work
 go.work.sum
 
+# Go vendor folder
+vendor
+
 # env file
 .env
 
@@ -29,3 +32,5 @@ go.work.sum
 node_modules
 bin
 NOTES.md
+tmp
+

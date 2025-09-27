@@ -23,7 +23,7 @@ confirm:
 .PHONY: run/app
 run/app:
 	@echo 'Start the app in development mode...'
-	@go run ./cmd/app -env=dev
+	@go run ./cmd/app -env=dev -database-path=${DB_DSN}
 
 ## run/landing: run the landing website
 .PHONY: run/landing

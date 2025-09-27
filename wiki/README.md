@@ -21,35 +21,39 @@ Simplified formula: 10 ops/second _ 100 users/day = 1000 (ops _ users)/second =>
 
 ```mermaid
 erDiagram
-    accounts {
+    users {
         INTEGER id PK
         TEXT email
-        TEXT password
+        TEXT password_hash
+        DATETIME created_at
+        DATETIME updated_at
     }
 
     branding {
         INTEGER id PK
-        INTEGER account_id FK
+        INTEGER user_id FK
         TEXT title
         TEXT description
     }
 
     goals {
         INTEGER id PK
-        INTEGER account_id FK
+        INTEGER user_id FK
         TEXT goal
-        TEXT due
-        INTEGER visible_to_public
-        INTEGER achieved
+        DATETIME due
+        BOOL visible_to_public
+        BOOL achieved
+        DATETIME created_at
+        DATETIME updated_at
     }
 
     share {
         INTEGER id PK
-        INTEGER account_id FK
+        INTEGER user_id FK
         TEXT public_id
     }
 
-    accounts ||--o{ goals : "has (CASCADE)"
-    accounts ||--o{ share : "creates (CASCADE)"
-    accounts ||--|| branding : "has (CASCADE)"
+    users ||--o{ goals : "has (CASCADE)"
+    users ||--o{ share : "creates (CASCADE)"
+    users ||--|| branding : "has (CASCADE)"
 ```
