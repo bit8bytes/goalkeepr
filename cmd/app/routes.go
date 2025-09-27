@@ -9,6 +9,7 @@ import (
 func (app *app) routes() http.Handler {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", app.getNotFound)
 	mux.Handle("/static/", ui.ServeStaticFiles())
 
 	mux.HandleFunc("GET /signup", app.getSignUp)
@@ -24,6 +25,8 @@ func (app *app) routes() http.Handler {
 	mux.Handle("GET /goals/add/{$}", app.withAuth(app.getAddGoal))
 	mux.Handle("POST /goals/add/{$}", app.withAuth(app.postAddGoal))
 	mux.Handle("GET /goals/share/{$}", app.withAuth(app.getShareGoals))
+	mux.Handle("DELETE /goals/share/{id}", app.withAuth(app.deleteShare))
+	mux.Handle("POST /goals/share/create", app.withAuth(app.postCreateShare))
 	mux.Handle("GET /goals/{id}", app.withAuth(app.getEditGoal))
 	mux.Handle("POST /goals/{id}", app.withAuth(app.postEditGoal))
 	mux.Handle("DELETE /goals/{id}", app.withAuth(app.deleteEditGoal))

@@ -9,7 +9,10 @@ const (
 	EditGoal   = "edit-goal.html"   // layout: app
 	ShareGoals = "share-goals.html" // layout: app
 
-	Settings = "settings.html" // layout: settings
+	NotFound = "not-found.html" // layout: all
+	Error    = "error.html"    // layout: center
+
+	Settings = "settings.html" // layout: center
 
 	Share = "share.html" // layout: share
 

@@ -121,3 +121,32 @@ func (s *Service) Delete(ctx context.Context, goalID, userID int) (int, error) {
 
 	return int(rowsAffected), nil
 }
+
+func (s *Service) GetAllShared(ctx context.Context, userID int) ([]Goal, error) {
+	stmt := `SELECT id, user_id, goal, due, visible_to_public, achieved 
+			 FROM goals 
+			 WHERE user_id = ? AND visible_to_public = true 
+			 ORDER BY due ASC`
+
+	rows, err := s.db.QueryContext(ctx, stmt, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var goals []Goal
+	for rows.Next() {
+		var goal Goal
+		err := rows.Scan(&goal.ID, &goal.UserID, &goal.Goal, &goal.Due, &goal.VisibleToPublic, &goal.Achieved)
+		if err != nil {
+			return nil, err
+		}
+		goals = append(goals, goal)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return goals, nil
+}

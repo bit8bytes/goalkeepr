@@ -12,6 +12,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/data"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
+	"github.com/bit8bytes/goalkeepr/internal/share"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 )
 
@@ -40,6 +41,7 @@ type modules struct {
 	users    *users.Service
 	goals    *goals.Service
 	branding *branding.Service
+	share    *share.Service
 }
 
 func main() {
@@ -88,6 +90,7 @@ func main() {
 		users:    users.New(dbP.DB),
 		goals:    goals.New(dbP.DB),
 		branding: branding.New(dbP.DB),
+		share:    share.New(dbP.DB),
 	}
 
 	app := app{

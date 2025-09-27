@@ -17,6 +17,11 @@ import (
 	"github.com/bit8bytes/toolbox/validator"
 )
 
+func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+}
+
 type signUpForm struct {
 	Email               string `form:"email"`
 	Password            string `form:"password"`
@@ -62,7 +67,8 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := user.Password.Set(form.Password); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -159,13 +165,15 @@ func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
 func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 	g, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
 	b, err := app.modules.branding.GetByUserID(r.Context(), getUserID(r))
 	if err != nil && err != sql.ErrNoRows {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -242,8 +250,7 @@ func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	if err := a.modules.goals.Add(r.Context(), goal); err != nil {
 		a.logger.Error("failed to add goal", slog.String("err", err.Error()))
 		data := newTemplateData(r)
-		data.Form = form
-		a.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -267,6 +274,11 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 
 	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
 	if err != nil {
+		if err == sql.ErrNoRows {
+			data := newTemplateData(r)
+			app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+			return
+		}
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -328,8 +340,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	if _, err = app.modules.goals.Update(r.Context(), goal); err != nil {
 		app.logger.Error("failed to update goal", slog.String("err", err.Error()))
 		data := newTemplateData(r)
-		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -346,12 +357,14 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 	rowsAffected, err := app.modules.goals.Delete(r.Context(), goalID, getUserID(r))
 	if err != nil {
 		app.logger.Error("failed to delete goal", slog.String("err", err.Error()))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
 	if rowsAffected == 0 {
-		http.Error(w, "Goal not found", http.StatusNotFound)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
 
@@ -364,9 +377,65 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
 
-func (a *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
+func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
+	shareLinks, err := app.modules.share.GetAll(r.Context(), getUserID(r))
+	if err != nil {
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		return
+	}
+
 	data := newTemplateData(r)
-	a.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
+	data.Data = map[string]any{
+		"Links": shareLinks,
+		"Host":  r.Host,
+	}
+	app.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
+}
+
+func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
+	share, err := app.modules.share.Create(r.Context(), getUserID(r))
+	if err != nil {
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		return
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Trigger", "shareCreated")
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprintf(w, `<div class="flex gap-1 items-center">
+			<input type="text" value="%s/s/%s" readonly class="input flex-1 bg-base-200" onclick="this.select()">
+			<button class="btn" onclick="navigator.clipboard.writeText('%s/s/%s')">Copy</button>
+			<button class="btn btn-error" hx-delete="/goals/share/%d" hx-target="closest .flex" hx-swap="outerHTML" hx-confirm="Delete this share link?">Delete</button>
+		</div>`, r.Host, share.PublicID, r.Host, share.PublicID, share.ID)
+		return
+	}
+
+	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
+}
+
+func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	shareID, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "Invalid share ID", http.StatusBadRequest)
+		return
+	}
+
+	err = app.modules.share.Delete(r.Context(), shareID)
+	if err != nil {
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		return
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
 }
 
 type editSettingsForm struct {
@@ -396,14 +465,16 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	user, err := app.modules.users.GetByID(ctx, userID)
 	if err != nil {
 		app.logger.Error("failed to get user", slog.String("err", err.Error()), slog.Int("userID", userID))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
 	branding, err := app.modules.branding.GetByUserID(ctx, userID)
 	if err != nil && err != sql.ErrNoRows {
 		app.logger.Error("failed to get branding", slog.String("err", err.Error()), slog.Int("userID", userID))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -455,7 +526,8 @@ func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 
 	if err := app.modules.branding.CreateOrUpdate(r.Context(), brandingData); err != nil {
 		app.logger.Error("failed to update branding", slog.String("err", err.Error()))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -468,7 +540,8 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 	err := app.modules.users.DeleteByID(r.Context(), userID)
 	if err != nil {
 		app.logger.Error("failed to delete user", slog.String("err", err.Error()))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 		return
 	}
 
@@ -484,6 +557,37 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) getShare(w http.ResponseWriter, r *http.Request) {
+	publicID := r.PathValue("id")
+	if publicID == "" {
+		http.Error(w, "Share ID required", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := a.modules.share.GetUserIDByPublicID(r.Context(), publicID)
+	if err != nil {
+		data := newTemplateData(r)
+		a.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+		return
+	}
+
+	goals, err := a.modules.goals.GetAllShared(r.Context(), userID)
+	if err != nil {
+		data := newTemplateData(r)
+		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		return
+	}
+
+	branding, err := a.modules.branding.GetByUserID(r.Context(), userID)
+	if err != nil && err != sql.ErrNoRows {
+		data := newTemplateData(r)
+		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		return
+	}
+
 	data := newTemplateData(r)
+	data.Data = map[string]any{
+		"Goals":    goals,
+		"Branding": branding,
+	}
 	a.render(w, r, http.StatusOK, layout.Share, page.Share, data)
 }

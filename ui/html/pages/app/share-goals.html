@@ -5,11 +5,48 @@ Timeline{{end}} {{define "main"}}
     >&larr; Back</a
   >
   <fieldset
+    id="share-links"
     class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
   >
     <legend class="fieldset-legend">Share</legend>
 
-    <button class="btn">
+    {{ if .Data.Links }} {{ range .Data.Links}}
+    <div class="flex gap-1 items-center">
+      <input
+        type="text"
+        value="{{$.Data.Host}}/s/{{ .PublicID }}"
+        readonly
+        class="input flex-1 bg-base-200"
+        onclick="this.select()"
+      />
+      <button
+        class="btn"
+        onclick="navigator.clipboard.writeText('{{$.Data.Host}}/s/{{ .PublicID }}')"
+      >
+        Copy
+      </button>
+      <button
+        class="btn btn-error"
+        hx-delete="/goals/share/{{ .ID }}"
+        hx-target="closest .flex"
+        hx-swap="outerHTML"
+        hx-confirm="Delete this share link?"
+      >
+        Delete
+      </button>
+    </div>
+    {{ end }}
+
+    <br class="divider" />
+
+    {{ end }}
+
+    <button
+      class="btn"
+      hx-post="/goals/share/create"
+      hx-target="#share-links"
+      hx-swap="afterbegin"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -20,16 +57,13 @@ Timeline{{end}} {{define "main"}}
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="lucide lucide-link-icon lucide-link"
+        class="lucide lucide-plus"
       >
-        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-        <path
-          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-        />
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
       </svg>
-      Copy Link
+      Create New Link
     </button>
-    <p class="label">You can share your Timeline with other people.</p>
   </fieldset>
 </div>
 

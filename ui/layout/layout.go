@@ -8,5 +8,7 @@ const (
 	Settings string = "settings" // cmd/app
 	Share    string = "share"    // cmd/app
 
+	Center string = "center" // cmd/app
+
 	Landing string = "landing" // cmd/www
 )
