@@ -20,11 +20,13 @@ func (app *app) routes() http.Handler {
 	mux.HandleFunc("/s/{id}", app.getShare)
 
 	mux.Handle("/{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
-	mux.Handle("/goals", app.withAuth(app.getGoals))
-	mux.Handle("/goals/add", app.withAuth(app.getAddGoal))
-	mux.Handle("POST /goals/add", app.withAuth(app.postAddGoal))
+	mux.Handle("GET /goals", app.withAuth(app.getGoals))
+	mux.Handle("GET /goals/add/{$}", app.withAuth(app.getAddGoal))
+	mux.Handle("POST /goals/add/{$}", app.withAuth(app.postAddGoal))
+	mux.Handle("/goals/share/{$}", app.withAuth(app.getShareGoals))
 	mux.Handle("/goals/{id}", app.withAuth(app.getEditGoal))
-	mux.Handle("/goals/share", app.withAuth(app.getShareGoals))
+	mux.Handle("POST /goals/{id}", app.withAuth(app.postEditGoal))
+	mux.Handle("DELETE /goals/{id}", app.withAuth(app.deleteEditGoal))
 
 	mux.Handle("/settings", app.withAuth(app.getSettings))
 

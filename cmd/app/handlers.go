@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/bit8bytes/goalkeepr/internal/goals"
@@ -156,9 +158,16 @@ func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/signin", http.StatusSeeOther)
 }
 
-func (a *app) getGoals(w http.ResponseWriter, r *http.Request) {
+func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
+	goals, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	data := newTemplateData(r)
-	a.render(w, r, http.StatusOK, layout.App, page.Goals, data)
+	data.Data = goals
+	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
 }
 
 type addGoalForm struct {
@@ -206,7 +215,7 @@ func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	goal := &goals.Goal{
-		UserID:          1,
+		UserID:          getUserID(r),
 		Goal:            form.Goal,
 		Due:             dueTime,
 		VisibleToPublic: form.VisibleToPublic,
@@ -222,12 +231,120 @@ func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
-
 }
 
-func (a *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
+type editGoalForm struct {
+	Goal                string `form:"goal"`
+	Due                 string `form:"due"`
+	Achieved            bool   `form:"achieved"`
+	VisibleToPublic     bool   `form:"visible"`
+	validator.Validator `form:"-"`
+}
+
+func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		return
+	}
+
+	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	data := newTemplateData(r)
-	a.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
+	data.Form = new(editGoalForm)
+	data.Data = goal
+	app.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
+}
+
+func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		return
+	}
+
+	rawGoal := r.PostForm.Get("goal")
+	rawDue := r.PostForm.Get("due")
+	visibleToPublic := r.PostForm.Get("visible") == "on"
+	achieved := r.PostForm.Get("achieved") == "on"
+
+	form := editGoalForm{
+		Goal:            sanitize.Text(rawGoal),
+		Due:             sanitize.Date(rawDue),
+		VisibleToPublic: visibleToPublic,
+		Achieved:        achieved,
+	}
+
+	validateEditGoal(&form)
+
+	if !form.Valid() {
+		data := newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		return
+	}
+
+	dueTime, err := time.Parse("2006-01-02", form.Due)
+	if err != nil {
+		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		return
+	}
+
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	goal := &goals.Goal{
+		ID:              goalID,
+		UserID:          getUserID(r),
+		Goal:            form.Goal,
+		Due:             dueTime,
+		VisibleToPublic: form.VisibleToPublic,
+		Achieved:        form.Achieved,
+	}
+
+	if _, err = app.modules.goals.Update(r.Context(), goal); err != nil {
+		app.logger.Error("failed to update goal", slog.String("err", err.Error()))
+		data := newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/goals/%v", goalID), http.StatusSeeOther)
+}
+
+func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	rowsAffected, err := app.modules.goals.Delete(r.Context(), goalID, getUserID(r))
+	if err != nil {
+		app.logger.Error("failed to delete goal", slog.String("err", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Goal not found", http.StatusNotFound)
+		return
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/goals")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
 
 func (a *app) getShareGoals(w http.ResponseWriter, r *http.Request) {

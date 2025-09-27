@@ -8,17 +8,23 @@
     </p>
   </hgroup>
 </div>
+{{ if .Data }}
 <ul class="timeline timeline-vertical">
+  {{ range $index, $goal := .Data }}
   <li>
-    <a href="/goals/1" class="timeline-start timeline-box"
-      >2025: Sell first project</a
+    {{ if eq (mod $index 2) 0 }}
+    <a href="/goals/{{ $goal.ID }}" class="timeline-start timeline-box"
+      >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
+    {{ if ne $index 0 }}
+    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+    {{ end }}
     <div class="timeline-middle">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
         fill="currentColor"
-        class="h-5 w-5"
+        class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
       >
         <path
           fill-rule="evenodd"
@@ -27,16 +33,17 @@
         />
       </svg>
     </div>
-    <hr />
-  </li>
-  <li>
-    <hr />
+    {{ if ne $index (sub (len $.Data) 1) }}
+    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+    {{ end }}
+    {{ else }}
+    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
     <div class="timeline-middle">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
         fill="currentColor"
-        class="h-5 w-5"
+        class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
       >
         <path
           fill-rule="evenodd"
@@ -45,30 +52,19 @@
         />
       </svg>
     </div>
-    <a href="/goals/2" class="timeline-end timeline-box"
-      >2026: Scale to 10 customers</a
+    <a href="/goals/{{ $goal.ID }}" class="timeline-end timeline-box"
+      >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
-    <hr />
+    {{ if ne $index (sub (len $.Data) 1) }}
+    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+    {{ end }}
+    {{ end }}
   </li>
-  <li>
-    <hr />
-    <a href="/goals/3" class="timeline-start timeline-box">
-      2034: Become a truly great software company
-    </a>
-    <div class="timeline-middle">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="h-5 w-5"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </div>
-  </li>
+  {{ end }}
 </ul>
-{{ end }}
+{{ else }}
+<div>
+  <a href="/goals/add/" class="btn btn-primary">Add First Goal</a>
+  <a href="/settings#branding" class="btn">Configure Branding</a>
+</div>
+{{ end }} {{ end }}

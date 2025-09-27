@@ -62,3 +62,11 @@ func validateAddGoal(f *addGoalForm) {
 	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
 	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
+
+func validateEditGoal(f *editGoalForm) {
+	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
+	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
+	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
+	f.Check(validator.PermittedValue(f.Achieved, true, false), "achieved", "This field can only be set or unset")
+	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
+}

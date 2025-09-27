@@ -9,13 +9,17 @@ import (
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"sub": func(a, b int) int { return a - b },
+	"mod": func(a, b int) int { return a % b },
+}
 
 type cache map[string]*template.Template
 
 type templateData struct {
 	Metadata metadata
 	Form     any
+	Data     any
 }
 
 type metadata struct {

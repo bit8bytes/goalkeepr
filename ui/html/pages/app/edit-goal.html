@@ -4,64 +4,109 @@
   <a href="/" class="text-base-content/50 hover:text-base-content"
     >&larr; Back</a
   >
-  <fieldset
-    class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
-  >
-    <legend class="fieldset-legend">Edit Goal</legend>
+  <form action="/goals/{{ .Data.ID }}" method="post">
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+    >
+      <legend class="fieldset-legend">Edit Goal</legend>
 
-    <label class="label">Goal</label>
-    <textarea type="text" class="textarea" placeholder="My goal"></textarea>
+      <label class="label">Goal</label>
+      <textarea name="goal" type="text" class="textarea" placeholder="My goal">
+{{ .Data.Goal }}</textarea
+      >
+      {{with .Form.Errors.goal}}
+      <label class="label">
+        <span class="label-text-alt text-error">{{.}}</span>
+      </label>
+      {{end}}
 
-    <label class="label">Due</label>
-    <input type="date" class="input" />
+      <label class="label">Due</label>
+      <input
+        name="due"
+        type="date"
+        class="input"
+        value='{{ .Data.Due.Format "2006-01-02" }}'
+      />
+      {{with .Form.Errors.due}}
+      <label class="label">
+        <span class="label-text-alt text-error">{{.}}</span>
+      </label>
+      {{end}}
 
-    <label class="label">
-      <input type="checkbox" class="checkbox" />
-      Achieved
-    </label>
+      <label class="label">
+        <input
+          type="checkbox"
+          name="achieved"
+          class="checkbox"
+          {{if
+          .Data.Achieved}}checked{{end}}
+        />
+        Achieved
+      </label>
+      {{with .Form.Errors.achieved}}
+      <label class="label">
+        <span class="label-text-alt text-error">{{.}}</span>
+      </label>
+      {{end}}
 
-    <label class="label">
-      <input type="checkbox" class="checkbox" />
-      Visible to the public after shared
-    </label>
+      <label class="label">
+        <input
+          type="checkbox"
+          name="visible"
+          class="checkbox"
+          {{
+          if
+          .Data.VisibleToPublic
+          }}checked{{
+          end
+          }}
+        />
+        Visible to the public after shared
+      </label>
+      {{with .Form.Errors.visible}}
+      <label class="label">
+        <span class="label-text-alt text-error">{{.}}</span>
+      </label>
+      {{end}}
 
-    <div class="grid grid-cols-4 gap-1 mt-4">
-      <button class="btn btn-neutral col-span-3">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-check-icon lucide-check"
-        >
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
-        Save
-      </button>
-      <button class="btn">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-trash-icon lucide-trash"
-        >
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-          <path d="M3 6h18" />
-          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-        </svg>
-      </button>
-    </div>
-  </fieldset>
+      <div class="grid grid-cols-4 gap-1 mt-4">
+        <button class="btn btn-neutral col-span-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-check-icon lucide-check"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Save
+        </button>
+        <button class="btn" hx-delete="/goals/{{ .Data.ID }}">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-trash-icon lucide-trash"
+          >
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>
+        </button>
+      </div>
+    </fieldset>
+  </form>
 </div>
 {{ end }}

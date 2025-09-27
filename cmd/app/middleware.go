@@ -9,9 +9,12 @@ type contextKey string
 
 const userIDKey contextKey = "userID"
 
+// Returns the user id from context. If not found it will return 0
 func getUserID(r *http.Request) int {
-	id, _ := r.Context().Value(userIDKey).(int)
-	return id
+	if id, ok := r.Context().Value(userIDKey).(int); ok {
+		return id
+	}
+	return 0
 }
 
 func (app *app) withAuth(next http.HandlerFunc) http.Handler {

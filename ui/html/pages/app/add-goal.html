@@ -4,7 +4,7 @@
   <a href="/" class="text-base-content/50 hover:text-base-content"
     >&larr; Back</a
   >
-  <form action="/goals/add" method="post">
+  <form action="/goals/add/" method="post">
     <fieldset
       class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
     >
@@ -33,7 +33,8 @@
           name="visible"
           type="checkbox"
           class="checkbox"
-          {{if .Form.VisibleToPublic}}checked{{end}}
+          {{if
+          .Form.VisibleToPublic}}checked{{end}}
         />
         Visible to the public after shared
       </label>
