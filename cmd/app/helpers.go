@@ -70,3 +70,8 @@ func validateEditGoal(f *editGoalForm) {
 	f.Check(validator.PermittedValue(f.Achieved, true, false), "achieved", "This field can only be set or unset")
 	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
+
+func validateEditBranding(f *editBrandingForm) {
+	f.Check(validator.MaxChars(f.Title, 512), "branding_title", "Title cannot exceed 512 characters")
+	f.Check(validator.MaxChars(f.Description, 2048), "branding_description", "Description cannot exceed 2048 characters")
+}

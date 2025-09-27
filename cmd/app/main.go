@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/data"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/users"
@@ -36,8 +37,9 @@ type app struct {
 }
 
 type modules struct {
-	users *users.Service
-	goals *goals.Service
+	users    *users.Service
+	goals    *goals.Service
+	branding *branding.Service
 }
 
 func main() {
@@ -83,8 +85,9 @@ func main() {
 	sessionManager.Lifetime = 24 * time.Hour
 
 	modules := &modules{
-		users: users.New(dbP.DB),
-		goals: goals.New(dbP.DB),
+		users:    users.New(dbP.DB),
+		goals:    goals.New(dbP.DB),
+		branding: branding.New(dbP.DB),
 	}
 
 	app := app{

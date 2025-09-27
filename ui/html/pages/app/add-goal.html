@@ -10,8 +10,14 @@
     >
       <legend class="fieldset-legend">Add Goal</legend>
 
-      <label class="label">Goal</label>
-      <textarea name="goal" type="text" class="textarea" placeholder="My goal">
+      <label for="goal" class="label">Goal</label>
+      <textarea
+        id="goal"
+        name="goal"
+        type="text"
+        class="textarea"
+        placeholder="My goal"
+      >
 {{ .Form.Goal }}</textarea
       >
       {{with .Form.Errors.goal}}
@@ -20,16 +26,23 @@
       </label>
       {{end}}
 
-      <label class="label">Due</label>
-      <input name="due" type="date" class="input" value="{{ .Form.Due }}" />
+      <label for="due" class="label">Due</label>
+      <input
+        id="due"
+        name="due"
+        type="date"
+        class="input"
+        value="{{ .Form.Due }}"
+      />
       {{with .Form.Errors.due}}
       <label class="label">
         <span class="label-text-alt text-error">{{.}}</span>
       </label>
       {{end}}
 
-      <label class="label">
+      <label for="visible" class="label">
         <input
+          id="visible"
           name="visible"
           type="checkbox"
           class="checkbox"

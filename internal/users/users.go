@@ -44,14 +44,14 @@ func (s *Service) Add(ctx context.Context, user *User) (int, error) {
 	return int(id), nil
 }
 
-func (s *Service) Get(ctx context.Context, user *User) (*User, error) {
+func (s *Service) GetByEmail(ctx context.Context, email string) (*User, error) {
 	query := `
 		SELECT id, email, password_hash, locked_until, created_at, updated_at
 		FROM users
 		WHERE email = ?
 	`
 
-	row := s.db.QueryRowContext(ctx, query, user.Email)
+	row := s.db.QueryRowContext(ctx, query, email)
 
 	var u User
 	var passwordHash string
@@ -62,4 +62,47 @@ func (s *Service) Get(ctx context.Context, user *User) (*User, error) {
 
 	u.Password.hash = []byte(passwordHash)
 	return &u, nil
+}
+
+func (s *Service) GetByID(ctx context.Context, id int) (*User, error) {
+	query := `
+		SELECT id, email, password_hash, locked_until, created_at, updated_at
+		FROM users
+		WHERE id = ?
+	`
+
+	row := s.db.QueryRowContext(ctx, query, id)
+
+	var u User
+	var passwordHash string
+	err := row.Scan(&u.ID, &u.Email, &passwordHash, &u.LockedUntil, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Password.hash = []byte(passwordHash)
+	return &u, nil
+}
+
+func (s *Service) DeleteByID(ctx context.Context, id int) error {
+	query := `
+		DELETE FROM users
+		WHERE id = ?
+	`
+
+	result, err := s.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }

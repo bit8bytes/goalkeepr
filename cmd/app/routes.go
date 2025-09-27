@@ -11,24 +11,26 @@ func (app *app) routes() http.Handler {
 
 	mux.Handle("/static/", ui.ServeStaticFiles())
 
-	mux.HandleFunc("/signup", app.getSignUp)
+	mux.HandleFunc("GET /signup", app.getSignUp)
 	mux.HandleFunc("POST /signup", app.postSignUp)
-	mux.HandleFunc("/signin", app.getSignIn)
+	mux.HandleFunc("GET /signin", app.getSignIn)
 	mux.HandleFunc("POST /signin", app.postSignIn)
 	mux.HandleFunc("POST /signout", app.postSignOut)
 
-	mux.HandleFunc("/s/{id}", app.getShare)
+	mux.HandleFunc("GET /s/{id}", app.getShare)
 
-	mux.Handle("/{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
+	mux.Handle("GET /{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
 	mux.Handle("GET /goals", app.withAuth(app.getGoals))
 	mux.Handle("GET /goals/add/{$}", app.withAuth(app.getAddGoal))
 	mux.Handle("POST /goals/add/{$}", app.withAuth(app.postAddGoal))
-	mux.Handle("/goals/share/{$}", app.withAuth(app.getShareGoals))
-	mux.Handle("/goals/{id}", app.withAuth(app.getEditGoal))
+	mux.Handle("GET /goals/share/{$}", app.withAuth(app.getShareGoals))
+	mux.Handle("GET /goals/{id}", app.withAuth(app.getEditGoal))
 	mux.Handle("POST /goals/{id}", app.withAuth(app.postEditGoal))
 	mux.Handle("DELETE /goals/{id}", app.withAuth(app.deleteEditGoal))
 
-	mux.Handle("/settings", app.withAuth(app.getSettings))
+	mux.Handle("GET /settings", app.withAuth(app.getSettings))
+	mux.Handle("POST /settings/branding", app.withAuth(app.postBranding))
+	mux.Handle("DELETE /settings/delete-user", app.withAuth(app.deleteUser))
 
 	return app.sessionManager.LoadAndSave(mux)
 }

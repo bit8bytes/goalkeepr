@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
 	"github.com/bit8bytes/goalkeepr/internal/users"
@@ -113,11 +115,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &users.User{
-		Email: form.Email,
-	}
-
-	user, err := app.modules.users.Get(r.Context(), user)
+	user, err := app.modules.users.GetByEmail(r.Context(), form.Email)
 	if err != nil {
 		data := newTemplateData(r)
 		form.AddError("email", "Invalid email or password.")
@@ -159,14 +157,33 @@ func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
-	goals, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
+	g, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+	b, err := app.modules.branding.GetByUserID(r.Context(), getUserID(r))
+	if err != nil && err != sql.ErrNoRows {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	brd := &branding.Branding{}
+	if b != nil {
+		brd = b
+	}
+
+	group := struct {
+		Goals    []goals.Goal
+		Branding branding.Branding
+	}{
+		Goals:    g,
+		Branding: *brd,
+	}
+
 	data := newTemplateData(r)
-	data.Data = goals
+	data.Data = group
 	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
 }
 
@@ -352,9 +369,118 @@ func (a *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 	a.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
 }
 
-func (a *app) getSettings(w http.ResponseWriter, r *http.Request) {
+type editSettingsForm struct {
+	Account  editAccountForm
+	Branding editBrandingForm
+}
+
+type editAccountForm struct {
+	Email               string `form:"email"`
+	validator.Validator `form:"-"`
+}
+
+type editBrandingForm struct {
+	Title               string `form:"title"`
+	Description         string `form:"description"`
+	validator.Validator `form:"-"`
+}
+
+func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
+	userID := getUserID(r)
+	if userID == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	ctx := r.Context()
+	user, err := app.modules.users.GetByID(ctx, userID)
+	if err != nil {
+		app.logger.Error("failed to get user", slog.String("err", err.Error()), slog.Int("userID", userID))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	branding, err := app.modules.branding.GetByUserID(ctx, userID)
+	if err != nil && err != sql.ErrNoRows {
+		app.logger.Error("failed to get branding", slog.String("err", err.Error()), slog.Int("userID", userID))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	var brandingForm editBrandingForm
+	if branding != nil {
+		brandingForm.Title = branding.Title
+		brandingForm.Description = branding.Description
+	}
+
+	form := editSettingsForm{
+		Account:  editAccountForm{Email: user.Email},
+		Branding: brandingForm,
+	}
+
 	data := newTemplateData(r)
-	a.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
+	data.Data = form
+	app.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
+}
+
+func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		return
+	}
+
+	rawTitle := r.PostForm.Get("title")
+	rawDescription := r.PostForm.Get("description")
+
+	form := editBrandingForm{
+		Title:       sanitize.Text(rawTitle),
+		Description: sanitize.Text(rawDescription),
+	}
+
+	validateEditBranding(&form)
+
+	if !form.Valid() {
+		data := newTemplateData(r)
+		data.Form = form
+		data.Data = editSettingsForm{}
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Settings, page.Settings, data)
+		return
+	}
+
+	brandingData := &branding.Branding{
+		UserID:      getUserID(r),
+		Title:       form.Title,
+		Description: form.Description,
+	}
+
+	if err := app.modules.branding.CreateOrUpdate(r.Context(), brandingData); err != nil {
+		app.logger.Error("failed to update branding", slog.String("err", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+}
+
+func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
+	userID := getUserID(r)
+
+	err := app.modules.users.DeleteByID(r.Context(), userID)
+	if err != nil {
+		app.logger.Error("failed to delete user", slog.String("err", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), UserIDSessionKey)
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/signup")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, "/signup", http.StatusSeeOther)
 }
 
 func (a *app) getShare(w http.ResponseWriter, r *http.Request) {

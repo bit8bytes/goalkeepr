@@ -2,15 +2,18 @@
 {{define "main"}}
 <div class="mb-4">
   <hgroup class="text-center">
-    <h1 class="text-lg font-bold text-base-content/50">Goalkeepr</h1>
+    <h1 class="text-lg font-bold text-base-content/50">
+      {{ if .Data.Branding.Title }}{{ .Data.Branding.Title }}{{ end }}
+    </h1>
     <p class="text-sm text-base-content/30">
-      Goalkeeper makes it simple to track and share your annual goals.
+      {{ if .Data.Branding.Description }}{{ .Data.Branding.Description }}{{ end
+      }}
     </p>
   </hgroup>
 </div>
-{{ if .Data }}
+{{ if .Data.Goals }}
 <ul class="timeline timeline-vertical">
-  {{ range $index, $goal := .Data }}
+  {{ range $index, $goal := .Data.Goals }}
   <li>
     {{ if eq (mod $index 2) 0 }}
     <a href="/goals/{{ $goal.ID }}" class="timeline-start timeline-box"
@@ -33,10 +36,9 @@
         />
       </svg>
     </div>
-    {{ if ne $index (sub (len $.Data) 1) }}
+    {{ if ne $index (sub (len $.Data.Goals) 1) }}
     <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }}
-    {{ else }}
+    {{ end }} {{ else }}
     <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
     <div class="timeline-middle">
       <svg
@@ -55,16 +57,51 @@
     <a href="/goals/{{ $goal.ID }}" class="timeline-end timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
-    {{ if ne $index (sub (len $.Data) 1) }}
+    {{ if ne $index (sub (len $.Data.Goals) 1) }}
     <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }}
-    {{ end }}
+    {{ end }} {{ end }}
   </li>
   {{ end }}
 </ul>
 {{ else }}
 <div>
-  <a href="/goals/add/" class="btn btn-primary">Add First Goal</a>
-  <a href="/settings#branding" class="btn">Configure Branding</a>
+  <a href="/goals/add/" class="btn btn-primary">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-plus-icon lucide-plus"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+    First Goal
+  </a>
+  <a href="/settings#branding" class="btn">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-signature-icon lucide-signature"
+    >
+      <path
+        d="m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284"
+      />
+      <path d="M3 21h18" />
+    </svg>
+    Configure Branding</a
+  >
 </div>
 {{ end }} {{ end }}

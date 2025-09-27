@@ -9,39 +9,62 @@
   >
     <legend class="fieldset-legend">Account</legend>
 
-    <label class="label">Email</label>
-    <input type="email" class="input" placeholder="john@doe.com" disabled />
+    <label for="email" class="label">Email</label>
+    <input
+      id="email"
+      type="email"
+      class="input"
+      value="{{ .Data.Account.Email }}"
+      disabled
+    />
   </fieldset>
 
-  <fieldset
-    class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
-  >
-    <legend class="fieldset-legend">Branding</legend>
+  <form action="/settings/branding" method="post">
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+    >
+      <legend class="fieldset-legend">Branding</legend>
 
-    <label class="label">Title</label>
-    <input type="text" class="input" placeholder="Title" />
+      <label for="title" class="label">Title</label>
+      <input
+        id="title"
+        name="title"
+        type="text"
+        class="input"
+        value="{{ .Data.Branding.Title }}"
+        placeholder="Title"
+      />
 
-    <label class="label">Description</label>
-    <textarea type="text" class="textarea" placeholder="Description"></textarea>
-
-    <button class="btn mt-4">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-check-icon lucide-check"
+      <label for="description" class="label">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        type="text"
+        class="textarea"
+        placeholder="Description"
       >
-        <path d="M20 6 9 17l-5-5" />
-      </svg>
-      Save Branding
-    </button>
-  </fieldset>
+{{ .Data.Branding.Description }}</textarea
+      >
+
+      <button type="submit" class="btn mt-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-check-icon lucide-check"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+        Save Branding
+      </button>
+    </fieldset>
+  </form>
 
   <fieldset
     class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
@@ -50,7 +73,13 @@
 
     <div class="flex justify-between items-center">
       <p>Delete Your Account</p>
-      <button class="btn btn-error btn-sm">DELETE</button>
+      <button
+        class="btn btn-error btn-sm"
+        hx-delete="/settings/delete-user"
+        hx-confirm="Are you sure you want to delete your account? This action cannot be undone."
+      >
+        DELETE
+      </button>
     </div>
   </fieldset>
 </div>

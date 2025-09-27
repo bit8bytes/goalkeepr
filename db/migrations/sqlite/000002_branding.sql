@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE branding (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL UNIQUE,
     title TEXT,
     description TEXT,
     
