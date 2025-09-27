@@ -15,6 +15,7 @@ type cache map[string]*template.Template
 
 type templateData struct {
 	Metadata metadata
+	Form     any
 }
 
 type metadata struct {

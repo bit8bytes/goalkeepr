@@ -6,8 +6,17 @@ import (
 	"log/slog"
 	"os"
 	"sync"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/bit8bytes/goalkeepr/internal/data"
+	"github.com/bit8bytes/goalkeepr/internal/goals"
+	"github.com/bit8bytes/goalkeepr/internal/users"
+)
+
+const (
+	UserIDSessionKey = "userID"
+	HTMLDateFormat   = "2006-01-02"
 )
 
 type config struct {
@@ -17,11 +26,18 @@ type config struct {
 }
 
 type app struct {
-	config        config
-	logger        *slog.Logger
-	templateCache map[string]*template.Template
+	config         config
+	logger         *slog.Logger
+	templateCache  map[string]*template.Template
+	sessionManager *scs.SessionManager
+	modules        *modules
 
 	wg sync.WaitGroup
+}
+
+type modules struct {
+	users *users.Service
+	goals *goals.Service
 }
 
 func main() {
@@ -63,10 +79,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 24 * time.Hour
+
+	modules := &modules{
+		users: users.New(dbP.DB),
+		goals: goals.New(dbP.DB),
+	}
+
 	app := app{
-		config:        cfg,
-		templateCache: templateCache,
-		logger:        logger,
+		config:         cfg,
+		logger:         logger,
+		templateCache:  templateCache,
+		sessionManager: sessionManager,
+		modules:        modules,
 	}
 
 	if err := app.serve(); err != nil {

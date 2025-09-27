@@ -32,7 +32,7 @@
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+        class="dropdown-content menu bg-base-200 rounded-box z-1 w-52 p-2 shadow-sm"
       >
         <li>
           <a href="/goals/add">
@@ -77,7 +77,7 @@
             Share Goals</a
           >
         </li>
-        <li>
+        <li class="mt-1 pt-1 border-t border-base-300">
           <a href="/settings">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -97,6 +97,27 @@
               <circle cx="12" cy="12" r="3" />
             </svg>
             Settings</a
+          >
+        </li>
+        <li class="mt-1 pt-1 border-t border-base-300">
+          <a href="#" hx-post="/signout">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-log-out-icon lucide-log-out"
+            >
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            </svg>
+            Log out</a
           >
         </li>
       </ul>

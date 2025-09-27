@@ -12,17 +12,21 @@ func (app *app) routes() http.Handler {
 	mux.Handle("/static/", ui.ServeStaticFiles())
 
 	mux.HandleFunc("/signup", app.getSignUp)
+	mux.HandleFunc("POST /signup", app.postSignUp)
 	mux.HandleFunc("/signin", app.getSignIn)
-
-	mux.Handle("/{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
-	mux.HandleFunc("/goals", app.getGoals)
-	mux.HandleFunc("/goals/add", app.getAddGoal)
-	mux.HandleFunc("/goals/{id}", app.getEditGoal)
-	mux.HandleFunc("/goals/share", app.getShareGoals)
-
-	mux.HandleFunc("/settings", app.getSettings)
+	mux.HandleFunc("POST /signin", app.postSignIn)
+	mux.HandleFunc("POST /signout", app.postSignOut)
 
 	mux.HandleFunc("/s/{id}", app.getShare)
 
-	return mux
+	mux.Handle("/{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
+	mux.Handle("/goals", app.withAuth(app.getGoals))
+	mux.Handle("/goals/add", app.withAuth(app.getAddGoal))
+	mux.Handle("POST /goals/add", app.withAuth(app.postAddGoal))
+	mux.Handle("/goals/{id}", app.withAuth(app.getEditGoal))
+	mux.Handle("/goals/share", app.withAuth(app.getShareGoals))
+
+	mux.Handle("/settings", app.withAuth(app.getSettings))
+
+	return app.sessionManager.LoadAndSave(mux)
 }

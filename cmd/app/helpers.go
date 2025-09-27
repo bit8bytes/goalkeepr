@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"net/http"
 	"time"
+
+	"github.com/bit8bytes/toolbox/validator"
 )
 
 func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templateLayout, templatePage string, data any) {
@@ -32,4 +34,31 @@ func newTemplateData(r *http.Request) *templateData {
 			Year: time.Now().Year(),
 		},
 	}
+}
+
+type formValidator interface {
+	Check(ok bool, key, message string)
+	Valid() bool
+}
+
+func validateEmail(form formValidator, email string) {
+	form.Check(validator.NotBlank(email), "email", "This field cannot be blank")
+	form.Check(validator.Matches(email, validator.EmailRX), "email", "This field must be a valid email address")
+}
+
+func validatePassword(form formValidator, password string) {
+	form.Check(validator.NotBlank(password), "password", "This field cannot be blank")
+	form.Check(validator.MinChars(password, 8), "password", "This field must be at least 8 characters long")
+}
+
+func validateRepeatPassword(form formValidator, password, repeatPassword string) {
+	form.Check(validator.NotBlank(repeatPassword), "repeat_password", "This field cannot be blank")
+	form.Check(password == repeatPassword, "repeat_password", "Passwords do not match")
+}
+
+func validateAddGoal(f *addGoalForm) {
+	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
+	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
+	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
+	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
