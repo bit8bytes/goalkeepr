@@ -23,7 +23,7 @@ confirm:
 .PHONY: run/app
 run/app:
 	@echo 'Start the app in development mode...'
-	@go run ./cmd/app -env=dev -database-path=${DB_DSN}
+	@go run ./cmd/app -env=dev -database-driver=sqlite -database-path=${DB_DSN}
 
 ## tw: run tw
 .PHONY: tw
@@ -76,3 +76,24 @@ build/linux_amd64: audit
 	@echo 'Building cmd/${SERVICE}...'
 	go build -ldflags='-s' -o=./bin/${SERVICE} ./cmd/app
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build --tags extended -ldflags='-s' -o=./bin/linux_amd64/${SERVICE} ./cmd/app
+
+
+# ==================================================================================== #
+# PRODUCTION
+# ==================================================================================== #
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect:
+	ssh setup@${PRODUCTION_HOST_IP}
+
+## production/deploy/goalkeepr: deploy the goalkeepr to production
+.PHONY: production/deploy/goalkeepr
+production/deploy/goalkeepr:
+	rsync -P ./bin/linux_amd64/${SERVICE} setup@${PRODUCTION_HOST_IP}:~
+	rsync -P ./remote/production/${SERVICE}.service setup@${PRODUCTION_HOST_IP}:~
+	ssh -t setup@${PRODUCTION_HOST_IP} '\
+		sudo mv ~/${SERVICE}.service /etc/systemd/system/ \
+		&& sudo systemctl enable ${SERVICE} \
+		&& sudo systemctl restart ${SERVICE} \
+	'

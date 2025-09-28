@@ -1,0 +1,26 @@
+[Unit]
+Description=Goalkeepr
+
+After=network-online.target
+Wants=network-online.target
+
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=setup
+Group=setup
+EnvironmentFile=/etc/goalkeepr.env
+WorkingDirectory=/home/setup
+ExecStart=/home/setup/goalkeepr \
+  -port=6000 \
+  -env=production \
+  -database-driver=sqlite \
+  -database-path=${DB_DSN}
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
