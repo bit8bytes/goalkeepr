@@ -57,7 +57,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		form := &signUpForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		data := newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		data := newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
 		return
 	}
 
