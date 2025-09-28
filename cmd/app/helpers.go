@@ -44,7 +44,7 @@ func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, u
 		slog.String("msg", err.Error()),
 	)
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Data = map[string]any{
 		"TraceID": reqTraceID,
 		"Message": userMessage,
@@ -53,11 +53,13 @@ func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, u
 	app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
 }
 
-func newTemplateData(r *http.Request) *templateData {
+func (app *app) newTemplateData(r *http.Request) *templateData {
+	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
 	return &templateData{
 		Metadata: metadata{
 			Year: time.Now().Year(),
 		},
+		IsAuthenticated: userID != 0,
 	}
 }
 

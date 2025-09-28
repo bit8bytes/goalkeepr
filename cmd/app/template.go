@@ -17,9 +17,10 @@ var functions = template.FuncMap{
 type cache map[string]*template.Template
 
 type templateData struct {
-	Metadata metadata
-	Form     any
-	Data     any
+	Metadata        metadata
+	Form            any
+	Data            any
+	IsAuthenticated bool
 }
 
 type metadata struct {

@@ -18,22 +18,22 @@ import (
 )
 
 func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 }
 
 func (app *app) getPrivacy(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusOK, layout.Landing, page.Privacy, data)
 }
 
 func (app *app) getImprint(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusOK, layout.Landing, page.Imprint, data)
 }
 
 func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)
 }
 
@@ -45,7 +45,13 @@ type signUpForm struct {
 }
 
 func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
+	if userID != 0 {
+		http.Redirect(w, r, "/goals", http.StatusSeeOther)
+		return
+	}
+
+	data := app.newTemplateData(r)
 	data.Form = &signUpForm{}
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
 }
@@ -53,7 +59,7 @@ func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		form := &signUpForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
@@ -83,7 +89,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	validateRepeatPassword(form, form.Password, form.RepeatPassword)
 
 	if !form.Valid() {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
 		return
@@ -93,7 +99,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 
 	if err := user.Password.Set(form.Password); err != nil {
 		app.logger.Warn("error setting user password", slog.String("msg", err.Error()))
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
@@ -103,7 +109,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	userID, err := app.modules.users.Add(r.Context(), user)
 	if err != nil {
 		app.logger.Warn("error creating new user", slog.String("msg", err.Error()))
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
@@ -122,7 +128,13 @@ type signInForm struct {
 }
 
 func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
+	if userID != 0 {
+		http.Redirect(w, r, "/goals", http.StatusSeeOther)
+		return
+	}
+
+	data := app.newTemplateData(r)
 	data.Form = new(signInForm)
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
 }
@@ -130,7 +142,7 @@ func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		form := &signInForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
@@ -157,7 +169,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	validatePassword(form, form.Password)
 
 	if !form.Valid() {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
@@ -185,7 +197,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 
 	if !match {
 		app.logger.Warn("passwords doesn't match")
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		form := signInForm{Email: form.Email} // Only email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
@@ -229,7 +241,7 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		"Branding": branding,
 	}
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Data = forms
 	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
 }
@@ -244,7 +256,7 @@ type goalForm struct {
 }
 
 func (app *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Form = goalForm{Due: time.Now().Format(HTMLDateFormat)}
 	app.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
 }
@@ -268,7 +280,7 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	validateAddGoal(form)
 
 	if !form.Valid() {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
 		return
@@ -303,7 +315,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -353,7 +365,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	validateEditGoal(form)
 
 	if !form.Valid() {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.EditGoal, data)
 		return
@@ -396,7 +408,7 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if rowsAffected == 0 {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
@@ -417,7 +429,7 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Data = map[string]any{
 		"Links": shareLinks,
 		"Host":  r.Host,
@@ -498,7 +510,7 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 		"Branding": branding,
 	}
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Form = forms
 	app.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
 }
@@ -561,14 +573,14 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	publicID := r.PathValue("id")
 	if publicID == "" {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
 
 	userID, err := app.modules.share.GetUserIDByPublicID(r.Context(), publicID)
 	if err != nil {
-		data := newTemplateData(r)
+		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
@@ -585,7 +597,7 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := newTemplateData(r)
+	data := app.newTemplateData(r)
 	data.Data = map[string]any{
 		"Goals":    goals,
 		"Branding": branding,

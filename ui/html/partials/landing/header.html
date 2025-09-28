@@ -23,8 +23,12 @@
       <span>Goalkeepr</span>
     </a>
     <div class="flex gap-1">
-      <a href="/signin" class="btn btn-ghost rounded-full">Sign In</a>
-      <a href="/signup" class="btn btn-primary rounded-full">Sign Up</a>
+      {{if .IsAuthenticated}}
+        <a href="/goals" class="btn btn-primary rounded-full">Go to App</a>
+      {{else}}
+        <a href="/signin" class="btn btn-ghost rounded-full">Sign In</a>
+        <a href="/signup" class="btn btn-primary rounded-full">Sign Up</a>
+      {{end}}
     </div>
   </div>
 </header>
