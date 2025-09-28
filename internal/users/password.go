@@ -2,25 +2,29 @@ package users
 
 import "golang.org/x/crypto/bcrypt"
 
-type password struct {
+const (
+	PreComputedHash = "$2a$12$BcH.9w4Gmo4Nz1WaHgzjDOGHkQiUWMv6MjsPqfEogPKJODCNJd2rS"
+)
+
+type Password struct {
 	plaintext *string
-	hash      []byte
+	Hash      []byte
 }
 
-func (p *password) Set(plaintextPassword string) error {
+func (p *Password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
 		return err
 	}
 
 	p.plaintext = &plaintextPassword
-	p.hash = hash
+	p.Hash = hash
 
 	return nil
 }
 
-func (p *password) Matches(plaintextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
+func (p *Password) Matches(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.Hash, []byte(plaintextPassword))
 	if err != nil {
 		switch err {
 		case bcrypt.ErrMismatchedHashAndPassword:

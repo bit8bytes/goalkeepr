@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -41,7 +42,12 @@ func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 
 func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		app.renderError(w, r, err, "Error parsing form.")
+		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
+		data := newTemplateData(r)
+		form := &signUpForm{} // Needs to initialized. The other returns already have it.
+		form.AddError("email", "This email cannot be used.")
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
 	}
 
@@ -69,23 +75,28 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
 	}
 
 	user := &users.User{Email: form.Email}
 
 	if err := user.Password.Set(form.Password); err != nil {
-		app.renderError(w, r, err, "Error setting up your account.")
+		app.logger.Warn("error setting user password", slog.String("msg", err.Error()))
+		data := newTemplateData(r)
+		form.AddError("email", "This email cannot be used.")
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
 	}
 
 	userID, err := app.modules.users.Add(r.Context(), user)
 	if err != nil {
+		app.logger.Warn("error creating new user", slog.String("msg", err.Error()))
 		data := newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
 	}
 
@@ -108,7 +119,12 @@ func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 
 func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		app.renderError(w, r, err, "Error processing form data.")
+		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
+		data := newTemplateData(r)
+		form := &signInForm{} // Needs to initialized. The other returns already have it.
+		form.AddError("email", "Invalid email or password.")
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
 		return
 	}
 
@@ -137,24 +153,30 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var user *users.User
+	var match bool
+
 	user, err := app.modules.users.GetByEmail(r.Context(), form.Email)
 	if err != nil {
-		data := newTemplateData(r)
-		form.AddError("email", "Invalid email or password.")
-		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
-		return
-	}
+		// Prevent timing attacks - use pre-computed bcrypt hash
+		dummyUser := &users.User{}
+		dummyUser.Password = users.Password{Hash: []byte(users.PreComputedHash)}
+		dummyUser.Password.Matches(form.Password)
+		match = false
 
-	match, err := user.Password.Matches(form.Password)
-	if err != nil {
-		app.renderError(w, r, err, "Error validating password.")
-		return
+		app.logger.Warn("error getting user by email", slog.String("msg", err.Error()))
+	} else {
+		match, err = user.Password.Matches(form.Password)
+		if err != nil {
+			app.logger.Warn("error matching passwords", slog.String("msg", err.Error()))
+			match = false
+		}
 	}
 
 	if !match {
+		app.logger.Warn("passwords doesn't match")
 		data := newTemplateData(r)
-		form := signInForm{Email: form.Email} // Return only the email
+		form := signInForm{Email: form.Email} // Only email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -263,15 +285,6 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
-
-// type goalForm struct {
-// 	ID                  int    `form:"-"`
-// 	Goal                string `form:"goal"`
-// 	Due                 string `form:"due"`
-
-// 	VisibleToPublic     bool   `form:"visible"`
-// 	validator.Validator `form:"-"`
-// }
 
 func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := strconv.Atoi(r.PathValue("id"))

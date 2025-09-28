@@ -9,7 +9,7 @@ import (
 type User struct {
 	ID          int        `db:"id"`
 	Email       string     `db:"email"`
-	Password    password   `db:"-"`
+	Password    Password   `db:"-"`
 	LockedUntil *time.Time `db:"locked_until"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
@@ -31,7 +31,7 @@ func (s *Service) Add(ctx context.Context, user *User) (int, error) {
 		VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	`
 
-	result, err := s.db.ExecContext(ctx, query, user.Email, user.Password.hash)
+	result, err := s.db.ExecContext(ctx, query, user.Email, user.Password.Hash)
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +60,7 @@ func (s *Service) GetByEmail(ctx context.Context, email string) (*User, error) {
 		return nil, err
 	}
 
-	u.Password.hash = []byte(passwordHash)
+	u.Password.Hash = []byte(passwordHash)
 	return &u, nil
 }
 
@@ -80,7 +80,7 @@ func (s *Service) GetByID(ctx context.Context, id int) (*User, error) {
 		return nil, err
 	}
 
-	u.Password.hash = []byte(passwordHash)
+	u.Password.Hash = []byte(passwordHash)
 	return &u, nil
 }
 
