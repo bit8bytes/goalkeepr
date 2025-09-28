@@ -122,3 +122,15 @@ func getTraceID(r *http.Request) string {
 	traceID, _ := r.Context().Value(TraceIDKey).(string)
 	return traceID
 }
+
+func commonHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
+		w.Header().Set("X-Frame-Options", "deny")
+		w.Header().Set("X-XSS-Protection", "0")
+
+		w.Header().Set("Server", "Go")
+
+		next.ServeHTTP(w, r)
+	})
+}

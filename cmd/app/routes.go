@@ -39,5 +39,8 @@ func (app *app) routes() http.Handler {
 	trace := NewTrace()
 	antiCSRF := http.NewCrossOriginProtection()
 
-	return app.sessionManager.LoadAndSave(trace.Handler(antiCSRF.Handler(mux)))
+	return app.sessionManager.LoadAndSave(
+		trace.Handler(
+			antiCSRF.Handler(
+				commonHeaders(mux))))
 }
