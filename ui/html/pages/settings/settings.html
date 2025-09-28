@@ -14,7 +14,7 @@
       id="email"
       type="email"
       class="input"
-      value="{{ .Data.Account.Email }}"
+      value="{{ .Form.Account.Email }}"
       disabled
     />
   </fieldset>
@@ -31,7 +31,7 @@
         name="title"
         type="text"
         class="input"
-        value="{{ .Data.Branding.Title }}"
+        value="{{ .Form.Branding.Title }}"
         placeholder="Title"
       />
 
@@ -43,7 +43,7 @@
         class="textarea"
         placeholder="Description"
       >
-{{ .Data.Branding.Description }}</textarea
+{{ .Form.Branding.Description }}</textarea
       >
 
       <button type="submit" class="btn mt-4">

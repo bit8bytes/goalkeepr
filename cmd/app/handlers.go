@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -29,15 +28,15 @@ type signUpForm struct {
 	validator.Validator `form:"-"`
 }
 
-func (a *app) getSignUp(w http.ResponseWriter, r *http.Request) {
+func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
-	data.Form = new(signUpForm)
-	a.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
+	data.Form = &signUpForm{}
+	app.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
 }
 
 func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error parsing form.")
 		return
 	}
 
@@ -62,13 +61,10 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &users.User{
-		Email: form.Email,
-	}
+	user := &users.User{Email: form.Email}
 
 	if err := user.Password.Set(form.Password); err != nil {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error setting up your account.")
 		return
 	}
 
@@ -91,15 +87,15 @@ type signInForm struct {
 	validator.Validator `form:"-"`
 }
 
-func (a *app) getSignIn(w http.ResponseWriter, r *http.Request) {
+func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
 	data.Form = new(signInForm)
-	a.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
+	app.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
 }
 
 func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error processing form data.")
 		return
 	}
 
@@ -132,14 +128,13 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 
 	match, err := user.Password.Matches(form.Password)
 	if err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error validating password.")
 		return
 	}
 
 	if !match {
-		app.logger.Warn("Password didn't match")
 		data := newTemplateData(r)
-		form := signInForm{Email: form.Email}
+		form := signInForm{Email: form.Email} // Return only the email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -151,7 +146,9 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
+	// Remove server session & client side cookie
 	app.sessionManager.Remove(r.Context(), UserIDSessionKey)
+	http.SetCookie(w, &http.Cookie{Name: GoalkeeprCookieName, Value: "", Path: "/", MaxAge: -1})
 
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Redirect", "/signin")
@@ -163,54 +160,46 @@ func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
-	g, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
+	goals, err := app.modules.goals.GetAll(r.Context(), getUserID(r))
 	if err != nil {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading your goals.")
 		return
 	}
 
-	b, err := app.modules.branding.GetByUserID(r.Context(), getUserID(r))
+	branding, err := app.modules.branding.GetByUserID(r.Context(), getUserID(r))
 	if err != nil && err != sql.ErrNoRows {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading your branding settings.")
 		return
 	}
 
-	brd := &branding.Branding{}
-	if b != nil {
-		brd = b
-	}
-
-	group := struct {
-		Goals    []goals.Goal
-		Branding branding.Branding
-	}{
-		Goals:    g,
-		Branding: *brd,
+	forms := map[string]any{
+		"Goals":    goals,
+		"Branding": branding,
 	}
 
 	data := newTemplateData(r)
-	data.Data = group
+	data.Data = forms
 	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
 }
 
-type addGoalForm struct {
+type goalForm struct {
+	ID                  int    `form:"id"`
 	Goal                string `form:"goal"`
 	Due                 string `form:"due"`
+	Achieved            bool   `form:"achieved"`
 	VisibleToPublic     bool   `form:"visible"`
 	validator.Validator `form:"-"`
 }
 
-func (a *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
+func (app *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
-	data.Form = addGoalForm{Due: time.Now().Format(HTMLDateFormat)}
-	a.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
+	data.Form = goalForm{Due: time.Now().Format(HTMLDateFormat)}
+	app.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
 }
 
-func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
+func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error processing form data.")
 		return
 	}
 
@@ -218,24 +207,24 @@ func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	rawDue := r.PostForm.Get("due")
 	visibleToPublic := r.PostForm.Get("visible") == "on"
 
-	form := addGoalForm{
+	form := &goalForm{
 		Goal:            sanitize.Text(rawGoal),
 		Due:             sanitize.Date(rawDue),
 		VisibleToPublic: visibleToPublic,
 	}
 
-	validateAddGoal(&form)
+	validateAddGoal(form)
 
 	if !form.Valid() {
 		data := newTemplateData(r)
 		data.Form = form
-		a.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
 		return
 	}
 
 	dueTime, err := time.Parse("2006-01-02", form.Due)
 	if err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Invalid date format.")
 		return
 	}
 
@@ -247,51 +236,56 @@ func (a *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 		Achieved:        false,
 	}
 
-	if err := a.modules.goals.Add(r.Context(), goal); err != nil {
-		a.logger.Error("failed to add goal", slog.String("err", err.Error()))
-		data := newTemplateData(r)
-		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+	if err := app.modules.goals.Add(r.Context(), goal); err != nil {
+		app.renderError(w, r, err, "Error saving your goal.")
 		return
 	}
 
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
 
-type editGoalForm struct {
-	Goal                string `form:"goal"`
-	Due                 string `form:"due"`
-	Achieved            bool   `form:"achieved"`
-	VisibleToPublic     bool   `form:"visible"`
-	validator.Validator `form:"-"`
-}
+// type goalForm struct {
+// 	ID                  int    `form:"-"`
+// 	Goal                string `form:"goal"`
+// 	Due                 string `form:"due"`
+
+// 	VisibleToPublic     bool   `form:"visible"`
+// 	validator.Validator `form:"-"`
+// }
 
 func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
-		return
-	}
-
-	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			data := newTemplateData(r)
-			app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
-			return
-		}
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.renderError(w, r, err, "Invalid goal ID.")
 		return
 	}
 
 	data := newTemplateData(r)
-	data.Form = new(editGoalForm)
-	data.Data = goal
+	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+			return
+		}
+		app.renderError(w, r, err, "Couldn't get your goals.")
+		return
+	}
+
+	editGoalForm := &goalForm{
+		ID:              goal.ID,
+		Goal:            goal.Goal,
+		Due:             goal.Due.Format(HTMLDateFormat),
+		Achieved:        goal.Achieved,
+		VisibleToPublic: goal.VisibleToPublic,
+	}
+
+	data.Form = editGoalForm
 	app.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
 }
 
 func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error processing form data.")
 		return
 	}
 
@@ -299,32 +293,32 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	rawDue := r.PostForm.Get("due")
 	visibleToPublic := r.PostForm.Get("visible") == "on"
 	achieved := r.PostForm.Get("achieved") == "on"
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
 
-	form := editGoalForm{
+	form := &goalForm{
+		ID:              goalID,
 		Goal:            sanitize.Text(rawGoal),
 		Due:             sanitize.Date(rawDue),
 		VisibleToPublic: visibleToPublic,
 		Achieved:        achieved,
 	}
 
-	validateEditGoal(&form)
+	validateEditGoal(form)
 
 	if !form.Valid() {
 		data := newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.EditGoal, data)
 		return
 	}
 
 	dueTime, err := time.Parse("2006-01-02", form.Due)
 	if err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
-		return
-	}
-
-	goalID, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		app.renderError(w, r, err, "Invalid date format.")
 		return
 	}
 
@@ -338,9 +332,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err = app.modules.goals.Update(r.Context(), goal); err != nil {
-		app.logger.Error("failed to update goal", slog.String("err", err.Error()))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error updating your goal.")
 		return
 	}
 
@@ -350,15 +342,13 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 	goalID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		app.renderError(w, r, err, "Invalid goal ID.")
 		return
 	}
 
 	rowsAffected, err := app.modules.goals.Delete(r.Context(), goalID, getUserID(r))
 	if err != nil {
-		app.logger.Error("failed to delete goal", slog.String("err", err.Error()))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error deleting your goal.")
 		return
 	}
 
@@ -380,8 +370,7 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 	shareLinks, err := app.modules.share.GetAll(r.Context(), getUserID(r))
 	if err != nil {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading your share links.")
 		return
 	}
 
@@ -390,14 +379,14 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 		"Links": shareLinks,
 		"Host":  r.Host,
 	}
+
 	app.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
 }
 
 func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
 	share, err := app.modules.share.Create(r.Context(), getUserID(r))
 	if err != nil {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error creating share link.")
 		return
 	}
 
@@ -416,17 +405,14 @@ func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	shareID, err := strconv.Atoi(id)
+	shareID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "Invalid share ID", http.StatusBadRequest)
+		app.renderError(w, r, err, "Invalid share ID.")
 		return
 	}
 
-	err = app.modules.share.Delete(r.Context(), shareID)
-	if err != nil {
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+	if err = app.modules.share.Delete(r.Context(), shareID); err != nil {
+		app.renderError(w, r, err, "Error deleting share link.")
 		return
 	}
 
@@ -438,17 +424,12 @@ func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
 }
 
-type editSettingsForm struct {
-	Account  editAccountForm
-	Branding editBrandingForm
-}
-
-type editAccountForm struct {
+type accountForm struct {
 	Email               string `form:"email"`
 	validator.Validator `form:"-"`
 }
 
-type editBrandingForm struct {
+type brandingForm struct {
 	Title               string `form:"title"`
 	Description         string `form:"description"`
 	validator.Validator `form:"-"`
@@ -456,78 +437,59 @@ type editBrandingForm struct {
 
 func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	userID := getUserID(r)
-	if userID == 0 {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
 
-	ctx := r.Context()
-	user, err := app.modules.users.GetByID(ctx, userID)
+	user, err := app.modules.users.GetByID(r.Context(), userID)
 	if err != nil {
-		app.logger.Error("failed to get user", slog.String("err", err.Error()), slog.Int("userID", userID))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading user settings.")
 		return
 	}
 
-	branding, err := app.modules.branding.GetByUserID(ctx, userID)
+	branding, err := app.modules.branding.GetByUserID(r.Context(), userID)
 	if err != nil && err != sql.ErrNoRows {
-		app.logger.Error("failed to get branding", slog.String("err", err.Error()), slog.Int("userID", userID))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading branding settings.")
 		return
 	}
 
-	var brandingForm editBrandingForm
-	if branding != nil {
-		brandingForm.Title = branding.Title
-		brandingForm.Description = branding.Description
-	}
-
-	form := editSettingsForm{
-		Account:  editAccountForm{Email: user.Email},
-		Branding: brandingForm,
+	forms := map[string]any{
+		"Account":  accountForm{Email: user.Email},
+		"Branding": branding,
 	}
 
 	data := newTemplateData(r)
-	data.Data = form
+	data.Form = forms
 	app.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
 }
 
 func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
+		app.renderError(w, r, err, "Error processing form data.")
 		return
 	}
 
 	rawTitle := r.PostForm.Get("title")
 	rawDescription := r.PostForm.Get("description")
 
-	form := editBrandingForm{
+	form := &brandingForm{
 		Title:       sanitize.Text(rawTitle),
 		Description: sanitize.Text(rawDescription),
 	}
 
-	validateEditBranding(&form)
+	validateBranding(form)
 
 	if !form.Valid() {
-		data := newTemplateData(r)
-		data.Form = form
-		data.Data = editSettingsForm{}
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Settings, page.Settings, data)
+		// Todo: better error handling for form but this requires the users email.
+		app.renderError(w, r, fmt.Errorf("title or description to long"), "Title or description to long.")
 		return
 	}
 
-	brandingData := &branding.Branding{
+	branding := &branding.Branding{
 		UserID:      getUserID(r),
 		Title:       form.Title,
 		Description: form.Description,
 	}
 
-	if err := app.modules.branding.CreateOrUpdate(r.Context(), brandingData); err != nil {
-		app.logger.Error("failed to update branding", slog.String("err", err.Error()))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+	if err := app.modules.branding.CreateOrUpdate(r.Context(), branding); err != nil {
+		app.renderError(w, r, err, "Error updating branding settings.")
 		return
 	}
 
@@ -535,17 +497,14 @@ func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
-	userID := getUserID(r)
-
-	err := app.modules.users.DeleteByID(r.Context(), userID)
-	if err != nil {
-		app.logger.Error("failed to delete user", slog.String("err", err.Error()))
-		data := newTemplateData(r)
-		app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+	if err := app.modules.users.DeleteByID(r.Context(), getUserID(r)); err != nil {
+		app.renderError(w, r, err, "Error deleting your account.")
 		return
 	}
 
+	// Delete session token & client cookie
 	app.sessionManager.Remove(r.Context(), UserIDSessionKey)
+	http.SetCookie(w, &http.Cookie{Name: GoalkeeprCookieName, Value: "", Path: "/", MaxAge: -1})
 
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Redirect", "/signup")
@@ -556,31 +515,30 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/signup", http.StatusSeeOther)
 }
 
-func (a *app) getShare(w http.ResponseWriter, r *http.Request) {
+func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	publicID := r.PathValue("id")
 	if publicID == "" {
-		http.Error(w, "Share ID required", http.StatusBadRequest)
+		data := newTemplateData(r)
+		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
 
-	userID, err := a.modules.share.GetUserIDByPublicID(r.Context(), publicID)
+	userID, err := app.modules.share.GetUserIDByPublicID(r.Context(), publicID)
 	if err != nil {
 		data := newTemplateData(r)
-		a.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 		return
 	}
 
-	goals, err := a.modules.goals.GetAllShared(r.Context(), userID)
+	goals, err := app.modules.goals.GetAllShared(r.Context(), userID)
 	if err != nil {
-		data := newTemplateData(r)
-		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading shared goals.")
 		return
 	}
 
-	branding, err := a.modules.branding.GetByUserID(r.Context(), userID)
+	branding, err := app.modules.branding.GetByUserID(r.Context(), userID)
 	if err != nil && err != sql.ErrNoRows {
-		data := newTemplateData(r)
-		a.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+		app.renderError(w, r, err, "Error loading page branding.")
 		return
 	}
 
@@ -589,5 +547,6 @@ func (a *app) getShare(w http.ResponseWriter, r *http.Request) {
 		"Goals":    goals,
 		"Branding": branding,
 	}
-	a.render(w, r, http.StatusOK, layout.Share, page.Share, data)
+
+	app.render(w, r, http.StatusOK, layout.Share, page.Share, data)
 }

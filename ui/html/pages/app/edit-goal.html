@@ -4,7 +4,7 @@
   <a href="/" class="text-base-content/50 hover:text-base-content"
     >&larr; Back</a
   >
-  <form action="/goals/{{ .Data.ID }}" method="post">
+  <form action="/goals/{{ .Form.ID }}" method="post">
     <fieldset
       class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
     >
@@ -18,7 +18,7 @@
         class="textarea"
         placeholder="My goal"
       >
-{{ .Data.Goal }}</textarea
+{{ .Form.Goal }}</textarea
       >
       {{with .Form.Errors.goal}}
       <label class="label">
@@ -32,7 +32,7 @@
         name="due"
         type="date"
         class="input"
-        value='{{ .Data.Due.Format "2006-01-02" }}'
+        value="{{ .Form.Due }}"
       />
       {{with .Form.Errors.due}}
       <label class="label">
@@ -47,7 +47,7 @@
           name="achieved"
           class="checkbox"
           {{if
-          .Data.Achieved}}checked{{end}}
+          .Form.Achieved}}checked{{end}}
         />
         Achieved
       </label>
@@ -65,7 +65,7 @@
           class="checkbox"
           {{
           if
-          .Data.VisibleToPublic
+          .Form.VisibleToPublic
           }}checked{{
           end
           }}
@@ -96,7 +96,7 @@
           </svg>
           Save
         </button>
-        <button class="btn" hx-delete="/goals/{{ .Data.ID }}">
+        <button class="btn" hx-delete="/goals/{{ .Form.ID }}">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

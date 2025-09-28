@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	UserIDSessionKey = "userID"
-	HTMLDateFormat   = "2006-01-02"
+	UserIDSessionKey    = "userID"
+	HTMLDateFormat      = "2006-01-02"
+	GoalkeeprCookieName = "goalkeepr"
 )
 
 type config struct {
@@ -85,6 +86,7 @@ func main() {
 
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 24 * time.Hour
+	sessionManager.Cookie.Name = GoalkeeprCookieName
 
 	modules := &modules{
 		users:    users.New(dbP.DB),

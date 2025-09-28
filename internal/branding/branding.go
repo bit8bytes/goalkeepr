@@ -22,7 +22,7 @@ func New(db *sql.DB) *Service {
 	}
 }
 
-func (s *Service) GetByUserID(ctx context.Context, userID int) (*Branding, error) {
+func (s *Service) GetByUserID(ctx context.Context, userID int) (Branding, error) {
 	query := `
 		SELECT id, user_id, title, description
 		FROM branding
@@ -34,10 +34,10 @@ func (s *Service) GetByUserID(ctx context.Context, userID int) (*Branding, error
 	var b Branding
 	err := row.Scan(&b.ID, &b.UserID, &b.Title, &b.Description)
 	if err != nil {
-		return nil, err
+		return Branding{}, err
 	}
 
-	return &b, nil
+	return b, nil
 }
 
 func (s *Service) CreateOrUpdate(ctx context.Context, branding *Branding) error {
