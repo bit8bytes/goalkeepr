@@ -1,7 +1,7 @@
 {{define "title"}}Edit Goal{{end}} {{define "description"}}Edit Your Goal{{end}}
 {{define "main"}}
 <div class="flex flex-col gap-2">
-  <a href="/" class="text-base-content/50 hover:text-base-content"
+  <a href="/goals" class="text-base-content/50 hover:text-base-content"
     >&larr; Back</a
   >
   <form action="/goals/{{ .Form.ID }}" method="post">

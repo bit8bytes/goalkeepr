@@ -48,6 +48,13 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	rawEmail := r.PostForm.Get("email")
 	rawPassword := r.PostForm.Get("password")
 	rawRepeatPassword := r.PostForm.Get("repeat_password")
+	rawWebsite := r.PostForm.Get("website")
+
+	// Honeypot for bot protection
+	if sanitize.Text(rawWebsite) != "" {
+		time.Sleep(3 * time.Second)
+		return
+	}
 
 	form := &signUpForm{
 		Email:          sanitize.Email(rawEmail),
@@ -89,6 +96,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 type signInForm struct {
 	Email               string `form:"email"`
 	Password            string `form:"password"`
+	Website             string `form:"website"`
 	validator.Validator `form:"-"`
 }
 
@@ -106,6 +114,13 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 
 	rawEmail := r.PostForm.Get("email")
 	rawPassword := r.PostForm.Get("password")
+	rawWebsite := r.PostForm.Get("website")
+
+	// Honeypot for bot protection
+	if sanitize.Text(rawWebsite) != "" {
+		time.Sleep(3 * time.Second)
+		return
+	}
 
 	form := &signInForm{
 		Email:    sanitize.Email(rawEmail),
