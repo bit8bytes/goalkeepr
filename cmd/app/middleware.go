@@ -60,3 +60,14 @@ func getRateLimiter(ip string) *rate.Limiter {
 
 	return limiter
 }
+
+func (app *app) cache(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.config.env == "dev" {
+			w.Header().Set("Cache-Control", "no-cache")
+		} else {
+			w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
+		}
+		next.ServeHTTP(w, r)
+	})
+}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 
 	"os"
@@ -23,6 +24,11 @@ func (app *app) serve() error {
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,
 		ErrorLog:          slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
+		ConnContext: func(ctx context.Context, _ net.Conn) context.Context {
+			traceID := generateTraceID()
+			ctx = context.WithValue(ctx, ConnTraceIDKey, traceID)
+			return ctx
+		},
 	}
 
 	shutdownError := make(chan error)

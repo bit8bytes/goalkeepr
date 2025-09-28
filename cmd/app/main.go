@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -53,7 +54,16 @@ type modules struct {
 
 func main() {
 	var logLevel = new(slog.LevelVar)
-	loggerOpts := &slog.HandlerOptions{Level: logLevel}
+	loggerOpts := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     logLevel,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.SourceKey {
+				source := a.Value.Any().(*slog.Source)
+				source.File = filepath.Base(source.File) // Only the filename as source
+			}
+			return a
+		}}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, loggerOpts))
 
 	var cfg config

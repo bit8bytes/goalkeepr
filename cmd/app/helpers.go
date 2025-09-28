@@ -36,11 +36,17 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templ
 }
 
 func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, userMessage string) {
-	app.logger.Error("error occured", slog.String("msg", err.Error()))
+	connTraceID := getConnTraceID(r)
+	reqTraceID := getRequestTraceID(r)
+
+	app.logger.Error("error occured",
+		slog.Group("trace", "conn", connTraceID, "req", reqTraceID),
+		slog.String("msg", err.Error()),
+	)
 
 	data := newTemplateData(r)
 	data.Data = map[string]any{
-		"TraceID": getTraceID(r),
+		"TraceID": reqTraceID,
 		"Message": userMessage,
 	}
 
@@ -97,7 +103,8 @@ func validateBranding(f *brandingForm) {
 
 type trace struct{}
 
-const TraceIDKey contextKey = "traceID"
+const ReqTraceIDKey contextKey = "reqTraceID"
+const ConnTraceIDKey contextKey = "connTraceID"
 
 func NewTrace() *trace {
 	return &trace{}
@@ -106,7 +113,7 @@ func NewTrace() *trace {
 func (t *trace) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		traceID := generateTraceID()
-		ctx := context.WithValue(r.Context(), TraceIDKey, traceID)
+		ctx := context.WithValue(r.Context(), ReqTraceIDKey, traceID)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
@@ -118,8 +125,13 @@ func generateTraceID() string {
 	return hex.EncodeToString(bytes)
 }
 
-func getTraceID(r *http.Request) string {
-	traceID, _ := r.Context().Value(TraceIDKey).(string)
+func getRequestTraceID(r *http.Request) string {
+	traceID, _ := r.Context().Value(ReqTraceIDKey).(string)
+	return traceID
+}
+
+func getConnTraceID(r *http.Request) string {
+	traceID, _ := r.Context().Value(ConnTraceIDKey).(string)
 	return traceID
 }
 
@@ -130,6 +142,22 @@ func commonHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-XSS-Protection", "0")
 
 		w.Header().Set("Server", "Go")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *app) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connTraceID := getConnTraceID(r)
+		reqTraceID := getRequestTraceID(r)
+
+		app.logger.Info("request",
+			slog.Group("trace", "conn", connTraceID, "req", reqTraceID),
+			slog.String("addr", r.RemoteAddr),
+			slog.String("method", r.Method),
+			slog.String("path", r.URL.Path),
+		)
 
 		next.ServeHTTP(w, r)
 	})

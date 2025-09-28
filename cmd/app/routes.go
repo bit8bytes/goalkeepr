@@ -10,7 +10,7 @@ func (app *app) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", app.getNotFound)
-	mux.Handle("/static/", ui.ServeStaticFiles())
+	mux.Handle("/static/", app.cache(ui.ServeStaticFiles()))
 
 	mux.HandleFunc("/{$}", app.getLanding)
 
@@ -42,5 +42,6 @@ func (app *app) routes() http.Handler {
 	return app.sessionManager.LoadAndSave(
 		trace.Handler(
 			antiCSRF.Handler(
-				commonHeaders(mux))))
+				app.logRequest(
+					commonHeaders(mux)))))
 }
