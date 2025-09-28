@@ -21,6 +21,11 @@ func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 }
 
+func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)
+}
+
 type signUpForm struct {
 	Email               string `form:"email"`
 	Password            string `form:"password"`
@@ -151,12 +156,12 @@ func (app *app) postSignOut(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{Name: GoalkeeprCookieName, Value: "", Path: "/", MaxAge: -1})
 
 	if r.Header.Get("HX-Request") == "true" {
-		w.Header().Set("HX-Redirect", "/signin")
+		w.Header().Set("HX-Redirect", "/")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	http.Redirect(w, r, "/signin", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {

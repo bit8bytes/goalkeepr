@@ -12,6 +12,8 @@ func (app *app) routes() http.Handler {
 	mux.HandleFunc("/", app.getNotFound)
 	mux.Handle("/static/", ui.ServeStaticFiles())
 
+	mux.HandleFunc("/{$}", app.getLanding)
+
 	mux.HandleFunc("GET /signup", app.getSignUp)
 	mux.HandleFunc("POST /signup", app.postSignUp)
 	mux.HandleFunc("GET /signin", app.getSignIn)
@@ -20,7 +22,6 @@ func (app *app) routes() http.Handler {
 
 	mux.HandleFunc("GET /s/{id}", app.getShare)
 
-	mux.Handle("GET /{$}", http.RedirectHandler("/goals", http.StatusSeeOther))
 	mux.Handle("GET /goals", app.withAuth(app.getGoals))
 	mux.Handle("GET /goals/add/{$}", app.withAuth(app.getAddGoal))
 	mux.Handle("POST /goals/add/{$}", app.withAuth(app.postAddGoal))

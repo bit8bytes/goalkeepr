@@ -10,5 +10,5 @@ const (
 
 	Center string = "center" // cmd/app
 
-	Landing string = "landing" // cmd/www
+	Landing string = "landing" // cmd/app
 )

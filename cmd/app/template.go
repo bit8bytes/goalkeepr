@@ -36,6 +36,12 @@ func newTemplateCache() (cache, error) {
 		extras []string
 	}{
 		{
+			name:   layout.Landing,
+			layout: "html/layouts/landing.html",
+			pages:  []string{"html/pages/landing/*.html"},
+			extras: []string{"html/partials/landing/*.html"},
+		},
+		{
 			name:   layout.App,
 			layout: "html/layouts/app.html",
 			pages:  []string{"html/pages/app/*.html"},

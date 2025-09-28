@@ -25,12 +25,6 @@ run/app:
 	@echo 'Start the app in development mode...'
 	@go run ./cmd/app -env=dev -database-path=${DB_DSN}
 
-## run/landing: run the landing website
-.PHONY: run/landing
-run/landing:
-	@echo 'Start the landing website in development mode...'
-	@go run ./cmd/landing -env=dev
-
 ## tw: run tw
 .PHONY: tw
 tw:
