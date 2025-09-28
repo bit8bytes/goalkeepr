@@ -14,12 +14,18 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/share"
 	"github.com/bit8bytes/goalkeepr/internal/users"
+	"golang.org/x/time/rate"
 )
 
 const (
 	UserIDSessionKey    = "userID"
 	HTMLDateFormat      = "2006-01-02"
 	GoalkeeprCookieName = "goalkeepr"
+)
+
+var (
+	mu       sync.Mutex
+	limiters = make(map[string]*rate.Limiter)
 )
 
 type config struct {

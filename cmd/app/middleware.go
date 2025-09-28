@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
+
+	"golang.org/x/time/rate"
 )
 
 type contextKey string
@@ -29,4 +32,31 @@ func (app *app) withAuth(next http.HandlerFunc) http.Handler {
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *app) withRateLimit(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		limiter := getRateLimiter(r.RemoteAddr)
+
+		if !limiter.Allow() {
+			http.Error(w, "Too many requests", http.StatusTooManyRequests)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func getRateLimiter(ip string) *rate.Limiter {
+	mu.Lock()
+	defer mu.Unlock()
+
+	limiter, exists := limiters[ip]
+	if !exists {
+		limiter =
+			rate.NewLimiter(rate.Every(time.Minute/5), 5) // 5 per minute
+		limiters[ip] = limiter
+	}
+
+	return limiter
 }

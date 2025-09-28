@@ -15,9 +15,9 @@ func (app *app) routes() http.Handler {
 	mux.HandleFunc("/{$}", app.getLanding)
 
 	mux.HandleFunc("GET /signup", app.getSignUp)
-	mux.HandleFunc("POST /signup", app.postSignUp)
+	mux.Handle("POST /signup", app.withRateLimit(http.HandlerFunc(app.postSignUp)))
 	mux.HandleFunc("GET /signin", app.getSignIn)
-	mux.HandleFunc("POST /signin", app.postSignIn)
+	mux.Handle("POST /signin", app.withRateLimit(http.HandlerFunc(app.postSignIn)))
 	mux.HandleFunc("POST /signout", app.postSignOut)
 
 	mux.HandleFunc("GET /s/{id}", app.getShare)
