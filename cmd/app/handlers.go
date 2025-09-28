@@ -22,6 +22,16 @@ func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
 }
 
+func (app *app) getPrivacy(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusOK, layout.Landing, page.Privacy, data)
+}
+
+func (app *app) getImprint(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	app.render(w, r, http.StatusOK, layout.Landing, page.Imprint, data)
+}
+
 func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
 	data := newTemplateData(r)
 	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)

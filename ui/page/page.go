@@ -10,11 +10,13 @@ const (
 	ShareGoals = "share-goals.html" // layout: app
 
 	NotFound = "not-found.html" // layout: all
-	Error    = "error.html"    // layout: center
+	Error    = "error.html"     // layout: center
 
 	Settings = "settings.html" // layout: center
 
 	Share = "share.html" // layout: share
 
 	Landing = "landing.html" // layout: landing
+	Privacy = "privacy.html" // layout: landing
+	Imprint = "imprint.html" // layout: landing
 )

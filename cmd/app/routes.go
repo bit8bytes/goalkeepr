@@ -13,6 +13,8 @@ func (app *app) routes() http.Handler {
 	mux.Handle("/static/", app.cache(ui.ServeStaticFiles()))
 
 	mux.HandleFunc("/{$}", app.getLanding)
+	mux.HandleFunc("/privacy", app.getPrivacy)
+	mux.HandleFunc("/imprint", app.getImprint)
 
 	mux.HandleFunc("GET /signup", app.getSignUp)
 	mux.Handle("POST /signup", app.withRateLimit(http.HandlerFunc(app.postSignUp)))
