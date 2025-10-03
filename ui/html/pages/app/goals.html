@@ -59,7 +59,10 @@ objectives. Access your complete roadmap and achievements in one place.{{end}}
     <a href="/goals/{{ $goal.ID }}" class="timeline-end timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
-    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+
+    <hr
+      class="{{ if ne $index (sub (len $.Data.Goals) 1) }}{{ if $goal.Achieved }}bg-primary{{ end }}{{ end }}"
+    />
     {{ end }}
   </li>
   {{ end }}
