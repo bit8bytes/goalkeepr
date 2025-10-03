@@ -1,4 +1,6 @@
-{{define "title"}}My Goals Dashboard - Goalkeepr{{end}} {{define "description"}}View your goal timeline, track progress, and manage your objectives. Access your complete roadmap and achievements in one place.{{end}}
+{{define "title"}}My Goals Dashboard - Goalkeepr{{end}} {{define
+"description"}}View your goal timeline, track progress, and manage your
+objectives. Access your complete roadmap and achievements in one place.{{end}}
 {{define "main"}}
 <div class="mb-4">
   <hgroup class="text-center">
@@ -57,11 +59,31 @@
     <a href="/goals/{{ $goal.ID }}" class="timeline-end timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
-    {{ if ne $index (sub (len $.Data.Goals) 1) }}
     <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }} {{ end }}
+    {{ end }}
   </li>
   {{ end }}
+  <li>
+    <hr />
+    <div class="timeline-middle">
+      <a href="/goals/add/" class="btn btn-circle btn-ghost w-8 h-8 opacity-50">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+      </a>
+    </div>
+  </li>
 </ul>
 {{ else }}
 <div>
