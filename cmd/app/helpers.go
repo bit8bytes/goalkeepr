@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 	"github.com/bit8bytes/toolbox/validator"
@@ -83,14 +84,14 @@ func validateRepeatPassword(form formValidator, password, repeatPassword string)
 	form.Check(password == repeatPassword, "repeat_password", "Passwords do not match")
 }
 
-func validateAddGoal(f *goalForm) {
+func validateAddGoal(f *goals.Form) {
 	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
 	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
 	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
 	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
 
-func validateEditGoal(f *goalForm) {
+func validateEditGoal(f *goals.Form) {
 	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
 	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
 	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")

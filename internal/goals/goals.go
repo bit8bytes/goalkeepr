@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/bit8bytes/toolbox/validator"
 )
 
 type Goal struct {
@@ -13,6 +15,15 @@ type Goal struct {
 	Due             time.Time
 	VisibleToPublic bool
 	Achieved        bool
+}
+
+type Form struct {
+	ID                  int    `form:"id"`
+	Goal                string `form:"goal"`
+	Due                 string `form:"due"`
+	Achieved            bool   `form:"achieved"`
+	VisibleToPublic     bool   `form:"visible"`
+	validator.Validator `form:"-"`
 }
 
 type Service struct {

@@ -11,6 +11,8 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
+	"github.com/bit8bytes/goalkeepr/internal/signin"
+	"github.com/bit8bytes/goalkeepr/internal/signup"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
@@ -37,13 +39,6 @@ func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)
 }
 
-type signUpForm struct {
-	Email               string `form:"email"`
-	Password            string `form:"password"`
-	RepeatPassword      string `form:"repeat_password"`
-	validator.Validator `form:"-"`
-}
-
 func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
 	if userID != 0 {
@@ -52,7 +47,7 @@ func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Form = &signUpForm{}
+	data.Form = &signin.Form{}
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
 }
 
@@ -60,7 +55,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
 		data := app.newTemplateData(r)
-		form := &signUpForm{} // Needs to initialized. The other returns already have it.
+		form := &signup.Form{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
@@ -78,7 +73,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := &signUpForm{
+	form := &signup.Form{
 		Email:          sanitize.Email(rawEmail),
 		Password:       sanitize.Password(rawPassword),
 		RepeatPassword: sanitize.Password(rawRepeatPassword),
@@ -120,13 +115,6 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
 
-type signInForm struct {
-	Email               string `form:"email"`
-	Password            string `form:"password"`
-	Website             string `form:"website"`
-	validator.Validator `form:"-"`
-}
-
 func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
 	if userID != 0 {
@@ -135,7 +123,7 @@ func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Form = new(signInForm)
+	data.Form = new(signin.Form)
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
 }
 
@@ -143,7 +131,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.Warn("error parsing form", slog.String("msg", err.Error()))
 		data := app.newTemplateData(r)
-		form := &signInForm{} // Needs to initialized. The other returns already have it.
+		form := &signin.Form{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -160,7 +148,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := &signInForm{
+	form := &signin.Form{
 		Email:    sanitize.Email(rawEmail),
 		Password: sanitize.Password(rawPassword),
 	}
@@ -198,7 +186,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if !match {
 		app.logger.Warn("passwords doesn't match")
 		data := app.newTemplateData(r)
-		form := signInForm{Email: form.Email} // Only email
+		form := signin.Form{Email: form.Email} // Only email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -246,18 +234,9 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
 }
 
-type goalForm struct {
-	ID                  int    `form:"id"`
-	Goal                string `form:"goal"`
-	Due                 string `form:"due"`
-	Achieved            bool   `form:"achieved"`
-	VisibleToPublic     bool   `form:"visible"`
-	validator.Validator `form:"-"`
-}
-
 func (app *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	data.Form = goalForm{Due: time.Now().Format(HTMLDateFormat)}
+	data.Form = goals.Form{Due: time.Now().Format(HTMLDateFormat)}
 	app.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
 }
 
@@ -271,7 +250,7 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	rawDue := r.PostForm.Get("due")
 	visibleToPublic := r.PostForm.Get("visible") == "on"
 
-	form := &goalForm{
+	form := &goals.Form{
 		Goal:            sanitize.Text(rawGoal),
 		Due:             sanitize.Date(rawDue),
 		VisibleToPublic: visibleToPublic,
@@ -326,7 +305,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	editGoalForm := &goalForm{
+	editGoalForm := &goals.Form{
 		ID:              goal.ID,
 		Goal:            goal.Goal,
 		Due:             goal.Due.Format(HTMLDateFormat),
@@ -354,7 +333,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := &goalForm{
+	form := &goals.Form{
 		ID:              goalID,
 		Goal:            sanitize.Text(rawGoal),
 		Due:             sanitize.Date(rawDue),
