@@ -1,0 +1,33 @@
+name: Test cmd/app
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Format code
+        run: go fmt ./...
+
+      - name: Vet code
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test -race -vet=off ./...
+
+      - name: Test coverage
+        run: |
+          go test -covermode=count -coverprofile=coverage.out ./...
