@@ -1,6 +1,6 @@
 # Goalkeepr
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Test](https://github.com/bit8bytes/goalkeepr/actions/workflows/test_cmd_app.yml/badge.svg)](https://github.com/bit8bytes/goalkeepr/actions/workflows/test_cmd_app.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Test](https://github.com/bit8bytes/goalkeepr/actions/workflows/test_cmd_app.yml/badge.svg)](https://github.com/bit8bytes/goalkeepr/actions/workflows/test_cmd_app.yml) [![Build](https://github.com/bit8bytes/goalkeepr/actions/workflows/build_cmd_app.yml/badge.svg)](https://github.com/bit8bytes/goalkeepr/actions/workflows/build_cmd_app.yml)
 
 Turn Your Goals Into a Clear Timeline.
 
