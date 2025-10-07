@@ -6,3 +6,5 @@ Turn Your Goals Into a Clear Timeline.
 
 Goalkeepr helps you map out your goals on a simple timeline.
 Share it with stakeholders, stay accountable, and keep sight of the bigger picture.
+
+Live Demo: [Goalkeepr](https://goalkeepr.io)
