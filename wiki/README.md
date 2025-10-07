@@ -57,3 +57,7 @@ erDiagram
     users ||--o{ share : "creates (CASCADE)"
     users ||--|| branding : "has (CASCADE)"
 ```
+
+## Scaling
+
+Before scaling any services it is recommend to scale the hardware. Go can handle many requests with less CPU and RAM usage. After that, it is useful to identify the bottlenecks of the app. Which can be found in Issue [#16](https://github.com/bit8bytes/goalkeepr/issues/16).
