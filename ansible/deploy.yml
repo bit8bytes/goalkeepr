@@ -1,0 +1,53 @@
+---
+- name: Deploy binary to VPS
+  hosts: production
+  become: yes
+
+  vars:
+    app_name: goalkeepr
+    app_user: setup
+    app_dir: /home/setup/{{ app_name }}
+    binary_path: "{{ app_dir }}/{{ app_name }}"
+    service_name: "{{ app_name }}.service"
+
+  tasks:
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Stop service if running
+      systemd:
+        name: "{{ service_name }}"
+        state: stopped
+      ignore_errors: yes
+
+    - name: Copy binary to VPS
+      copy:
+        src: "./{{ app_name }}"
+        dest: "{{ binary_path }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Create systemd service file
+      template:
+        src: templates/app.service.j2
+        dest: /etc/systemd/system/{{ service_name }}
+        mode: "0644"
+      notify: reload systemd
+
+    - name: Enable and start service
+      systemd:
+        name: "{{ service_name }}"
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+  handlers:
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes

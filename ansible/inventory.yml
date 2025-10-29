@@ -1,0 +1,6 @@
+all:
+  hosts:
+    production:
+      ansible_host: "{{ lookup('env', 'VPS_HOST') }}"
+      ansible_user: setup
+      ansible_python_interpreter: /usr/bin/python3
