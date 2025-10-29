@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Deploy
 
 on:
   workflow_run:
@@ -36,9 +36,15 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Test SSH connection
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no setup@${{ secrets.VPS_HOST }} "echo 'SSH connection successful'"
+
       - name: Run Ansible playbook
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           cd ansible
-          ansible-playbook -i inventory.yml deploy.yml
+          ansible-playbook -i inventory.yml deploy.yml -vvv
