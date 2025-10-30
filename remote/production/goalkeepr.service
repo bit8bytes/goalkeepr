@@ -9,14 +9,14 @@ StartLimitBurst=5
 
 [Service]
 Type=exec
-User=github-service-account
-Group=github-service-account
+User=setup
+Group=setup
 EnvironmentFile=/etc/goalkeepr.env
-WorkingDirectory=/home/github-service-account
-ExecStart=/usr/local/bin/goalkeepr \
+WorkingDirectory=/home/setup
+ExecStart=/home/setup/goalkeepr \
   -port=6000 \
   -env=production \
-  -database-driver=sqlite \
+  -database-driver=sqlite
   -database-path=${DB_DSN}
 
 Restart=on-failure
