@@ -201,6 +201,40 @@ func TestSignupHandler(t *testing.T) {
 	})
 }
 
+func FuzzSignupHandler(f *testing.F) {
+	f.Add("test@example.com", "password123", "password123", "")
+	f.Add("", "", "", "")
+	f.Add("valid@email.com", "short", "short", "")
+	f.Add("invalid-email", "validpassword", "validpassword", "")
+	f.Add("test@example.com", "password123", "different", "")
+	f.Add("user@domain.co.uk", "LongPassword123!", "LongPassword123!", "")
+	f.Add("test@example.com", "", "password123", "")
+	f.Add("test@example.com", "password123", "", "")
+	f.Add("a@b.c", "p", "p", "")
+
+	f.Fuzz(func(t *testing.T, email, password, repeatPassword, website string) {
+		app := newTestApplication(t)
+		ts := newTestServer(t, app.routes())
+		defer ts.Close()
+
+		form := url.Values{}
+		form.Add("email", email)
+		form.Add("password", password)
+		form.Add("repeat_password", repeatPassword)
+		form.Add("website", website)
+
+		code, _, body := ts.postForm(t, "/signup", form)
+
+		if code < 200 || code >= 600 {
+			t.Errorf("unexpected status code: %d", code)
+		}
+
+		if code == http.StatusOK && len(body) == 0 {
+			t.Error("empty response body for 200 status")
+		}
+	})
+}
+
 func TestSigninHandler(t *testing.T) {
 	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())
