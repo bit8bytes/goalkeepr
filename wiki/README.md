@@ -64,7 +64,5 @@ Before scaling any services it is recommend to scale the hardware. Go can handle
 
 ## Development
 
-### Dependencies
-
-- shellcheck
-- shfmt
+- Go(lang)
+- npx/npm for Tailwindcss
