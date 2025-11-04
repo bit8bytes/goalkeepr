@@ -16,7 +16,7 @@ WorkingDirectory=/home/setup
 ExecStart=/home/setup/goalkeepr \
   -port=6000 \
   -env=prod \
-  -database-driver=sqlite
+  -database-driver=sqlite \
   -database-path=${DB_DSN}
 
 Restart=on-failure
