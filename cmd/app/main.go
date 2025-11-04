@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"os"
-	"path/filepath"
+	"slices"
 	"sync"
 	"time"
 
@@ -54,21 +55,11 @@ type modules struct {
 
 func main() {
 	var logLevel = new(slog.LevelVar)
-	loggerOpts := &slog.HandlerOptions{
-		AddSource: true,
-		Level:     logLevel,
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			if a.Key == slog.SourceKey {
-				source := a.Value.Any().(*slog.Source)
-				source.File = filepath.Base(source.File) // Only the filename as source
-			}
-			return a
-		}}
-	logger := slog.New(slog.NewTextHandler(os.Stdout, loggerOpts))
+	logger := setupLogger(logLevel)
 
 	var cfg config
-	if err := setup(&cfg); err != nil {
-		logger.Error("Error occured on setup", slog.String("msg", err.Error()))
+	if err := setupConfig(&cfg); err != nil {
+		logger.Error("error occured on setup", slog.String("msg", err.Error()))
 		os.Exit(1)
 	}
 
@@ -78,13 +69,13 @@ func main() {
 
 	dbP, err := data.New(cfg.db.Driver, cfg.db.Path)
 	if err != nil {
-		logger.Error("Error creating database provider", slog.String("msg", err.Error()))
+		logger.Error("error creating database provider", slog.String("msg", err.Error()))
 		os.Exit(1)
 	}
 
 	dbVersion, err := dbP.AutoMigrate()
 	if err != nil {
-		logger.Error("Error migrating",
+		logger.Error("error migrating",
 			slog.String("msg", err.Error()),
 			slog.String("driver", dbP.Driver),
 			slog.String("path", dbP.Path),
@@ -92,11 +83,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("Database version", slog.Int64("version", *dbVersion))
+	logger.Info("database version", slog.Int64("version", *dbVersion))
 
 	templateCache, err := newTemplateCache()
 	if err != nil {
-		logger.Error("Error creating template cache", slog.String("msg", err.Error()))
+		logger.Error("error creating template cache", slog.String("msg", err.Error()))
 		os.Exit(1)
 	}
 
@@ -120,12 +111,14 @@ func main() {
 	}
 
 	if err := app.serve(); err != nil {
-		logger.Error("Error shutting down the server", slog.String("msg", err.Error()))
+		logger.Error("error shutting down the server", slog.String("msg", err.Error()))
 		os.Exit(1)
 	}
 }
 
-func setup(cfg *config) error {
+var envs = []string{"dev", "stage", "prod"}
+
+func setupConfig(cfg *config) error {
 	flag.StringVar(&cfg.env, "env", "prod", "Environment (dev|stage|prod)")
 	flag.IntVar(&cfg.port, "port", 8080, "Port")
 
@@ -135,5 +128,21 @@ func setup(cfg *config) error {
 
 	flag.Parse()
 
+	if ok := slices.Contains(envs, cfg.env); !ok {
+		return fmt.Errorf("env must be on of: dev, stage, prod")
+	}
+
+	if cfg.port < 0 || cfg.port > 65535 {
+		return fmt.Errorf("port is not in valid range of 0-65535")
+	}
+
 	return nil
+}
+
+func setupLogger(level *slog.LevelVar) *slog.Logger {
+	loggerOpts := &slog.HandlerOptions{AddSource: false, Level: level}
+	handler := slog.NewTextHandler(os.Stdout, loggerOpts)
+	traceHandler := newTraceHandler(handler)
+
+	return slog.New(traceHandler)
 }

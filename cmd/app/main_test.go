@@ -35,7 +35,7 @@ func TestSetup(t *testing.T) {
 			os.Args = []string{"-env", test.expectedValue}
 
 			var cfg config
-			err := setup(&cfg)
+			err := setupConfig(&cfg)
 			if err != test.wantErr {
 				t.Errorf("git: %v; want %v;", err, test.wantErr)
 			}

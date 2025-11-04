@@ -38,12 +38,12 @@ func (app *app) routes() http.Handler {
 	mux.Handle("POST /settings/branding", app.withAuth(app.postBranding))
 	mux.Handle("DELETE /settings/delete-user", app.withAuth(app.deleteUser))
 
-	trace := NewTrace()
 	antiCSRF := http.NewCrossOriginProtection()
+	trace := newTrace()
 
 	return app.sessionManager.LoadAndSave(
-		trace.Handler(
-			antiCSRF.Handler(
+		antiCSRF.Handler(
+			trace.Handler(
 				app.logRequest(
 					commonHeaders(mux)))))
 }

@@ -37,17 +37,11 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templ
 }
 
 func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, userMessage string) {
-	connTraceID := getConnTraceID(r)
-	reqTraceID := getRequestTraceID(r)
-
-	app.logger.Error("error occured",
-		slog.Group("trace", "conn", connTraceID, "req", reqTraceID),
-		slog.String("msg", err.Error()),
-	)
+	app.logger.Error("error occured", slog.String("msg", err.Error()))
 
 	data := app.newTemplateData(r)
 	data.Data = map[string]any{
-		"TraceID": reqTraceID,
+		"TraceID": r.Context().Value(TraceIdKey).(string),
 		"Message": userMessage,
 	}
 
@@ -106,36 +100,48 @@ func validateBranding(f *brandingForm) {
 
 type trace struct{}
 
-const ReqTraceIDKey contextKey = "reqTraceID"
-const ConnTraceIDKey contextKey = "connTraceID"
-
-func NewTrace() *trace {
+func newTrace() *trace {
 	return &trace{}
 }
 
 func (t *trace) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		traceID := generateTraceID()
-		ctx := context.WithValue(r.Context(), ReqTraceIDKey, traceID)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), TraceIdKey, generateTraceID())))
 	})
+}
+
+type TraceHandler struct {
+	slog.Handler
+}
+
+func newTraceHandler(h slog.Handler) *TraceHandler {
+	return &TraceHandler{Handler: h}
+}
+
+func (h *TraceHandler) Handle(ctx context.Context, r slog.Record) error {
+	var attrs []any
+
+	if ctx == nil {
+		panic("context is nil")
+	}
+
+	if traceID, ok := ctx.Value(TraceIdKey).(string); ok && traceID != "" {
+		attrs = append(attrs, slog.String("trace_id", traceID))
+	}
+	if connID, ok := ctx.Value(ConnIdKey).(string); ok && connID != "" {
+		attrs = append(attrs, slog.String("conn_id", connID))
+	}
+
+	if len(attrs) > 0 {
+		r.AddAttrs(slog.Group("request", attrs...))
+	}
+	return h.Handler.Handle(ctx, r)
 }
 
 func generateTraceID() string {
 	bytes := make([]byte, 4)
 	rand.Read(bytes)
 	return hex.EncodeToString(bytes)
-}
-
-func getRequestTraceID(r *http.Request) string {
-	traceID, _ := r.Context().Value(ReqTraceIDKey).(string)
-	return traceID
-}
-
-func getConnTraceID(r *http.Request) string {
-	traceID, _ := r.Context().Value(ConnTraceIDKey).(string)
-	return traceID
 }
 
 func commonHeaders(next http.Handler) http.Handler {
@@ -152,11 +158,7 @@ func commonHeaders(next http.Handler) http.Handler {
 
 func (app *app) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		connTraceID := getConnTraceID(r)
-		reqTraceID := getRequestTraceID(r)
-
-		app.logger.Info("request",
-			slog.Group("trace", "conn", connTraceID, "req", reqTraceID),
+		app.logger.InfoContext(r.Context(), "request",
 			slog.String("addr", r.RemoteAddr),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
