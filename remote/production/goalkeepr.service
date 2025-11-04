@@ -15,7 +15,7 @@ EnvironmentFile=/etc/goalkeepr.env
 WorkingDirectory=/home/setup
 ExecStart=/home/setup/goalkeepr \
   -port=6000 \
-  -env=production \
+  -env=prod \
   -database-driver=sqlite
   -database-path=${DB_DSN}
 
