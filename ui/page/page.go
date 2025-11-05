@@ -14,6 +14,8 @@ const (
 
 	Settings = "settings.html" // layout: center
 
+	RateLimitExceeded = "rate-limit-exceeded.html" // layout: center
+
 	Share = "share.html" // layout: share
 
 	Landing = "landing.html" // layout: landing

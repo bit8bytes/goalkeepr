@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bit8bytes/goalkeepr/ui/layout"
+	"github.com/bit8bytes/goalkeepr/ui/page"
 	"golang.org/x/time/rate"
 )
 
@@ -35,7 +37,7 @@ func (app *app) withRateLimit(next http.Handler) http.Handler {
 		limiter := getRateLimiter(r.RemoteAddr)
 
 		if !limiter.Allow() {
-			http.Error(w, "Too many requests", http.StatusTooManyRequests)
+			app.render(w, r, http.StatusTooManyRequests, layout.Center, page.RateLimitExceeded, nil)
 			return
 		}
 
