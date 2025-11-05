@@ -13,9 +13,10 @@
     <link rel="stylesheet" href="/static/dist/index.css" />
     <link rel="icon" href="data:," />
     <script src="/static/dist/htmx.min.js"></script>
+    <script src="/static/dist/htmx-ext-preload.js"></script>
     <script src="/static/dist/remove-me.js"></script>
   </head>
-  <body class="flex flex-col min-h-screen">
+  <body class="flex flex-col min-h-screen" hx-ext="preload">
     {{ template "header" . }}
     <main
       class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"

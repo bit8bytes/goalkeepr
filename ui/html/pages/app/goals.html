@@ -1,7 +1,6 @@
-{{define "title"}}My Goals Dashboard{{end}} {{define
-"description"}}View your goal timeline, track progress, and manage your
-objectives. Access your complete roadmap and achievements in one place.{{end}}
-{{define "main"}}
+{{define "title"}}My Goals Dashboard{{end}} {{define "description"}}View your
+goal timeline, track progress, and manage your objectives. Access your complete
+roadmap and achievements in one place.{{end}} {{define "main"}}
 <div class="mb-4">
   <hgroup class="text-center">
     <h1 class="text-lg font-bold text-base-content/50">
@@ -18,7 +17,10 @@ objectives. Access your complete roadmap and achievements in one place.{{end}}
   {{ range $index, $goal := .Data.Goals }}
   <li>
     {{ if eq (mod $index 2) 0 }}
-    <a href="/goals/{{ $goal.ID }}" class="timeline-start timeline-box"
+    <a
+      href="/goals/{{ $goal.ID }}"
+      preload="mousedown"
+      class="timeline-start timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
     {{ if ne $index 0 }}
