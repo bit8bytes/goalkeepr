@@ -19,7 +19,7 @@ roadmap and achievements in one place.{{end}} {{define "main"}}
     {{ if eq (mod $index 2) 0 }}
     <a
       href="/goals/{{ $goal.ID }}"
-      preload="mousedown"
+      preload="mouseover"
       class="timeline-start timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
