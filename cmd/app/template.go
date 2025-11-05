@@ -21,6 +21,7 @@ type templateData struct {
 	Form            any
 	Data            any
 	IsAuthenticated bool
+	Flash           *flash
 }
 
 type metadata struct {

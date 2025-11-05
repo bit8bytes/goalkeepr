@@ -4,7 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/bit8bytes/toolbox/validator"
 )
+
+type Form struct {
+	Email               string `form:"email"`
+	validator.Validator `form:"-"`
+}
 
 type User struct {
 	ID          int        `db:"id"`

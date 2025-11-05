@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
@@ -93,7 +94,7 @@ func validateEditGoal(f *goals.Form) {
 	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
 
-func validateBranding(f *brandingForm) {
+func validateBranding(f *branding.Form) {
 	f.Check(validator.MaxChars(f.Title, 512), "branding_title", "Title cannot exceed 512 characters")
 	f.Check(validator.MaxChars(f.Description, 2048), "branding_description", "Description cannot exceed 2048 characters")
 }
@@ -142,6 +143,18 @@ func generateTraceID() string {
 	bytes := make([]byte, 4)
 	rand.Read(bytes)
 	return hex.EncodeToString(bytes)
+}
+
+func (app *app) flash(ctx context.Context) *flash {
+	if flashMsg := app.sessionManager.PopString(ctx,
+		"flash"); flashMsg != "" {
+		return &flash{Content: flashMsg}
+	}
+	return nil
+}
+
+func (app *app) putFlash(ctx context.Context, msg string) {
+	app.sessionManager.Put(ctx, "flash", msg)
 }
 
 func commonHeaders(next http.Handler) http.Handler {

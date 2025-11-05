@@ -16,7 +16,6 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
-	"github.com/bit8bytes/toolbox/validator"
 )
 
 func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
@@ -314,6 +313,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Form = editGoalForm
+	data.Flash = app.flash(r.Context())
 	app.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
 }
 
@@ -370,6 +370,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.putFlash(r.Context(), "Goal saved!")
 	http.Redirect(w, r, fmt.Sprintf("/goals/%v", goalID), http.StatusSeeOther)
 }
 
@@ -458,15 +459,8 @@ func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
 }
 
-type accountForm struct {
-	Email               string `form:"email"`
-	validator.Validator `form:"-"`
-}
-
-type brandingForm struct {
-	Title               string `form:"title"`
-	Description         string `form:"description"`
-	validator.Validator `form:"-"`
+type flash struct {
+	Content string
 }
 
 func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
@@ -485,12 +479,13 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	forms := map[string]any{
-		"Account":  accountForm{Email: user.Email},
+		"Account":  users.Form{Email: user.Email},
 		"Branding": branding,
 	}
 
 	data := app.newTemplateData(r)
 	data.Form = forms
+	data.Flash = app.flash(r.Context())
 	app.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
 }
 
@@ -503,7 +498,7 @@ func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 	rawTitle := r.PostForm.Get("title")
 	rawDescription := r.PostForm.Get("description")
 
-	form := &brandingForm{
+	form := &branding.Form{
 		Title:       sanitize.Text(rawTitle),
 		Description: sanitize.Text(rawDescription),
 	}
@@ -527,6 +522,7 @@ func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.putFlash(r.Context(), "Branding saved")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 

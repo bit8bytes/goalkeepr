@@ -3,7 +3,15 @@ package branding
 import (
 	"context"
 	"database/sql"
+
+	"github.com/bit8bytes/toolbox/validator"
 )
+
+type Form struct {
+	Title               string `form:"title"`
+	Description         string `form:"description"`
+	validator.Validator `form:"-"`
+}
 
 type Branding struct {
 	ID          int    `db:"id"`
