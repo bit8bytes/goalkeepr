@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/pressly/goose/v3"
-	_ "modernc.org/sqlite"
 )
 
 // SQLiteProvider implements Provider interface for SQLite databases

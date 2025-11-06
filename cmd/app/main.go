@@ -11,12 +11,14 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"golang.org/x/time/rate"
+	_ "modernc.org/sqlite"
+
 	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/data"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/share"
 	"github.com/bit8bytes/goalkeepr/internal/users"
-	"golang.org/x/time/rate"
 )
 
 const (
