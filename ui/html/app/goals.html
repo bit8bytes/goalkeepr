@@ -58,7 +58,10 @@ roadmap and achievements in one place.{{end}} {{define "main"}}
         />
       </svg>
     </div>
-    <a href="/goals/{{ $goal.ID }}" class="timeline-end timeline-box"
+    <a
+      href="/goals/{{ $goal.ID }}"
+      preload="mouseover"
+      class="timeline-end timeline-box"
       >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
     >
 
@@ -71,7 +74,11 @@ roadmap and achievements in one place.{{end}} {{define "main"}}
   <li>
     <hr />
     <div class="timeline-middle">
-      <a href="/goals/add/" class="btn btn-circle btn-ghost w-8 h-8 opacity-50">
+      <a
+        href="/goals/add/"
+        preload="mouseover"
+        class="btn btn-circle btn-ghost w-8 h-8 opacity-50"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -92,7 +99,7 @@ roadmap and achievements in one place.{{end}} {{define "main"}}
 </ul>
 {{ else }}
 <div>
-  <a href="/goals/add/" class="btn btn-primary">
+  <a href="/goals/add/" preload="mouseover" class="btn btn-primary">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"
@@ -110,7 +117,7 @@ roadmap and achievements in one place.{{end}} {{define "main"}}
     </svg>
     First Goal
   </a>
-  <a href="/settings#branding" class="btn">
+  <a href="/settings#branding" preload="mouseover" class="btn">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"

@@ -39,43 +39,43 @@ func newTemplateCache() (cache, error) {
 	}{
 		{
 			name:   layout.Landing,
-			layout: "html/layouts/landing.html",
-			pages:  []string{"html/pages/landing/*.html"},
-			extras: []string{"html/partials/landing/*.html"},
+			layout: "html/#layouts/landing.html",
+			pages:  []string{"html/landing/*.html"},
+			extras: []string{"html/#partials/landing/*.html"},
 		},
 		{
 			name:   layout.App,
-			layout: "html/layouts/app.html",
-			pages:  []string{"html/pages/app/*.html"},
-			extras: []string{"html/partials/app/*.html"},
+			layout: "html/#layouts/app.html",
+			pages:  []string{"html/app/*.html"},
+			extras: []string{"html/#partials/app/*.html"},
 		},
 		{
 			name:   layout.Settings,
-			layout: "html/layouts/settings.html",
+			layout: "html/#layouts/settings.html",
 			pages:  []string{"html/pages/settings/*.html"},
-			extras: []string{"html/partials/app/*.html"},
+			extras: []string{"html/#partials/app/*.html"},
 		},
 		{
 			name:   layout.Share,
-			layout: "html/layouts/share.html",
+			layout: "html/#layouts/share.html",
 			pages:  []string{"html/pages/share/*.html"},
-			extras: []string{"html/partials/share/*.html"},
+			extras: []string{"html/#partials/share/*.html"},
 		}, {
 			name:   layout.Share,
-			layout: "html/layouts/share.html",
+			layout: "html/#layouts/share.html",
 			pages:  []string{"html/pages/share/*.html"},
-			extras: []string{"html/partials/share/*.html"},
+			extras: []string{"html/#partials/share/*.html"},
 		},
 		{
 			name:   layout.Auth,
-			layout: "html/layouts/auth.html",
-			pages:  []string{"html/pages/auth/*.html"},
-			extras: []string{"html/partials/share/*.html"},
+			layout: "html/#layouts/auth.html",
+			pages:  []string{"html/auth/*.html"},
+			extras: []string{"html/#partials/share/*.html"},
 		},
 		{
 			name:   layout.Center,
-			layout: "html/layouts/center.html",
-			pages:  []string{"html/pages/center/*.html"},
+			layout: "html/#layouts/center.html",
+			pages:  []string{"html/center/*.html"},
 		},
 	}
 
@@ -106,7 +106,7 @@ func addLayoutPages(cache *cache, layout string, pagePatterns []string, extras [
 	for _, page := range allPages {
 		name := filepath.Base(page)
 
-		patterns := []string{layout}
+		patterns := []string{"html/#base.html", layout}
 		patterns = append(patterns, extras...)
 		patterns = append(patterns, page)
 

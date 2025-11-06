@@ -1,0 +1,15 @@
+{{ define "share" }}
+  {{template "base" .}}
+{{ end }}
+
+{{ define "keywords" }}Share your Goals with Goalkeepr to anyone.{{ end }}
+
+{{ define "body-content" }}
+  {{ template "header" . }}
+  <main
+    class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"
+  >
+    {{template "main" . }}
+  </main>
+  {{ template "footer" . }}
+{{ end }}
