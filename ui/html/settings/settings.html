@@ -1,0 +1,115 @@
+{{ define "title" }}Account Settings{{ end }}
+{{ define "description" }}
+  Manage your account preferences, customize timeline branding, and configure
+  your Goalkeepr profile settings.
+{{ end }}
+{{ define "main" }}
+  <div class="flex flex-col gap-2">
+    <a href="/goals" class="text-base-content/50 hover:text-base-content"
+      >&larr; Back</a
+    >
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+    >
+      <legend class="fieldset-legend">Account</legend>
+
+      <label for="email" class="label">Email</label>
+      <input
+        id="email"
+        type="email"
+        class="input"
+        value="{{ .Form.Account.Email }}"
+        disabled
+      />
+    </fieldset>
+
+    <form action="/settings/branding" method="post">
+      <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+      >
+        <legend class="fieldset-legend">Branding</legend>
+
+        <label for="title" class="label">Title</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          class="input"
+          value="{{ .Form.Branding.Title }}"
+          placeholder="Title"
+        />
+
+        <label for="description" class="label">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          type="text"
+          class="textarea"
+          placeholder="Description"
+        >
+      {{ .Form.Branding.Description }}
+      </textarea>
+
+        <button type="submit" class="btn mt-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-check-icon lucide-check"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Save Branding
+        </button>
+      </fieldset>
+    </form>
+
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+    >
+      <legend class="fieldset-legend">Danger Zone</legend>
+
+      <div class="flex justify-between items-center">
+        <p>Delete Your Account</p>
+        <button
+          class="btn btn-error btn-sm"
+          hx-delete="/settings/delete-user"
+          hx-confirm="Are you sure you want to delete your account? This action cannot be undone."
+        >
+          DELETE
+        </button>
+      </div>
+    </fieldset>
+  </div>
+
+  {{ with .Flash }}
+    <div hx-ext="remove-me">
+      <div
+        role="alert"
+        remove-me="3s"
+        class="absolute bottom-2 md:right-2 right-6 alert alert-success"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 shrink-0 stroke-current"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>{{ .Content }}</span>
+      </div>
+    </div>
+  {{ end }}
+{{ end }}

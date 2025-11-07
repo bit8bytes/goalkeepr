@@ -1,24 +1,23 @@
 package page
 
 const (
-	SignUp = "signup.html" // layout: signup
-	SignIn = "signin.html" // layout: signin
+	SignUp = "signup.html"
+	SignIn = "signin.html"
 
-	Goals      = "goals.html"       // layout: app
-	AddGoal    = "add-goal.html"    // layout: app
-	EditGoal   = "edit-goal.html"   // layout: app
-	ShareGoals = "share-goals.html" // layout: app
+	Goals      = "goals.html"
+	AddGoal    = "add-goal.html"
+	EditGoal   = "edit-goal.html"
+	ShareGoals = "share-goals.html"
 
-	NotFound = "not-found.html" // layout: all
-	Error    = "error.html"     // layout: center
+	Settings = "settings.html"
 
-	Settings = "settings.html" // layout: center
+	Share = "share.html"
 
-	RateLimitExceeded = "rate-limit-exceeded.html" // layout: center
+	NotFound          = "not-found.html"
+	Error             = "error.html"
+	RateLimitExceeded = "rate-limit-exceeded.html"
 
-	Share = "share.html" // layout: share
-
-	Landing = "landing.html" // layout: landing
-	Privacy = "privacy.html" // layout: landing
-	Imprint = "imprint.html" // layout: landing
+	Landing = "landing.html"
+	Privacy = "privacy.html"
+	Imprint = "imprint.html"
 )
