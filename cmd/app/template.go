@@ -33,25 +33,15 @@ type templateCache struct {
 // CacheOption configures a templateCache.
 type CacheOption func(*templateCache)
 
-// WithFS sets a custom filesystem for template loading.
-// Useful for testing or hot-reload in development.
-func WithFS(fsys fs.FS) CacheOption {
-	return func(tc *templateCache) {
-		tc.fsys = fsys
-	}
-}
-
 // WithFunctions adds custom template functions.
 func WithFunctions(fns template.FuncMap) CacheOption {
 	return func(tc *templateCache) {
+		for key := range fns {
+			if _, exists := tc.functions[key]; exists {
+				panic(fmt.Sprintf("function %q already exists and cannot be overwritten", key))
+			}
+		}
 		maps.Copy(tc.functions, fns)
-	}
-}
-
-// WithLayouts sets custom layouts (for testing or dynamic layouts).
-func WithLayouts(layouts []layout.Layout) CacheOption {
-	return func(tc *templateCache) {
-		tc.layouts = layouts
 	}
 }
 
