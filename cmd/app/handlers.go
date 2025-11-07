@@ -11,8 +11,6 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
-	"github.com/bit8bytes/goalkeepr/internal/signin"
-	"github.com/bit8bytes/goalkeepr/internal/signup"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
@@ -46,7 +44,7 @@ func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Form = &signin.Form{}
+	data.Form = &users.SignUpForm{}
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
 }
 
@@ -54,7 +52,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.WarnContext(r.Context(), "error parsing form", slog.String("msg", err.Error()))
 		data := app.newTemplateData(r)
-		form := &signup.Form{} // Needs to initialized. The other returns already have it.
+		form := &users.SignUpForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
@@ -72,7 +70,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := &signup.Form{
+	form := &users.SignUpForm{
 		Email:          sanitize.Email(rawEmail),
 		Password:       sanitize.Password(rawPassword),
 		RepeatPassword: sanitize.Password(rawRepeatPassword),
@@ -122,7 +120,7 @@ func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Form = new(signin.Form)
+	data.Form = new(users.SignInForm)
 	app.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
 }
 
@@ -130,7 +128,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		app.logger.WarnContext(r.Context(), "error parsing form", slog.String("msg", err.Error()))
 		data := app.newTemplateData(r)
-		form := &signin.Form{} // Needs to initialized. The other returns already have it.
+		form := &users.SignInForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -147,7 +145,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := &signin.Form{
+	form := &users.SignInForm{
 		Email:    sanitize.Email(rawEmail),
 		Password: sanitize.Password(rawPassword),
 	}
@@ -185,7 +183,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if !match {
 		app.logger.WarnContext(r.Context(), "passwords doesn't match")
 		data := app.newTemplateData(r)
-		form := signin.Form{Email: form.Email} // Only email
+		form := users.SignInForm{Email: form.Email} // Only email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
@@ -479,7 +477,7 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	forms := map[string]any{
-		"Account":  users.Form{Email: user.Email},
+		"Account":  users.UpdateUserForm{Email: user.Email},
 		"Branding": branding,
 	}
 

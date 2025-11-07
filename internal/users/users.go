@@ -8,7 +8,20 @@ import (
 	"github.com/bit8bytes/toolbox/validator"
 )
 
-type Form struct {
+type SignInForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
+type SignUpForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	RepeatPassword      string `form:"repeat_password"`
+	validator.Validator `form:"-"`
+}
+
+type UpdateUserForm struct {
 	Email               string `form:"email"`
 	validator.Validator `form:"-"`
 }
