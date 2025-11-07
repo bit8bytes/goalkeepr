@@ -1,56 +1,55 @@
-{{define "footer"}}
-
-<footer
-  class="footer sm:footer-horizontal text-base-content p-10 mx-auto max-w-7xl"
->
-  <aside>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-target-icon lucide-target"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="12" r="6" />
-      <circle cx="12" cy="12" r="2" />
-    </svg>
-    <p>
-      Goalkeepr
-      <br />
-      Copyright &copy; {{ .Metadata.Year }} - All right reserved
-    </p>
-  </aside>
-  <nav>
-    <h6 class="footer-title">Services</h6>
-    <a href="#how" class="link link-hover">Timeline</a>
-  </nav>
-  <nav>
-    <h6 class="footer-title">Social</h6>
-    <a
-      class="link link-hover"
-      href="https://www.linkedin.com/in/tobiasgleiter"
-      aria-label="LinkedIn of Tobias Gleiter"
-      target="_blank"
-      >LinkedIn</a
-    >
-    <a
-      class="link link-hover"
-      href="https://github.com/bit8bytes/goalkeepr"
-      aria-label="GitHub repository"
-      target="_blank"
-      >GitHub</a
-    >
-  </nav>
-  <nav>
-    <h6 class="footer-title">Legal</h6>
-    <a href="/privacy" class="link link-hover">Privacy policy</a>
-    <a href="/imprint" class="link link-hover">Imprint</a>
-  </nav>
-</footer>
-{{end}}
+{{ define "footer" }}
+  <footer
+    class="footer sm:footer-horizontal text-base-content p-10 mx-auto max-w-7xl"
+  >
+    <aside>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-target-icon lucide-target"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+      <p>
+        Goalkeepr
+        <br />
+        Copyright &copy; {{ .Metadata.Year }} - All right reserved
+      </p>
+    </aside>
+    <nav>
+      <h6 class="footer-title">Services</h6>
+      <a href="#how" class="link link-hover">Timeline</a>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Social</h6>
+      <a
+        class="link link-hover"
+        href="https://www.linkedin.com/in/tobiasgleiter"
+        aria-label="LinkedIn of Tobias Gleiter"
+        target="_blank"
+        >LinkedIn</a
+      >
+      <a
+        class="link link-hover"
+        href="https://github.com/bit8bytes/goalkeepr"
+        aria-label="GitHub repository"
+        target="_blank"
+        >GitHub</a
+      >
+    </nav>
+    <nav>
+      <h6 class="footer-title">Legal</h6>
+      <a href="/privacy" class="link link-hover">Privacy policy</a>
+      <a href="/imprint" class="link link-hover">Imprint</a>
+    </nav>
+  </footer>
+{{ end }}

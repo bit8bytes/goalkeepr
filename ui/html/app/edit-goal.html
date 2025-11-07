@@ -1,146 +1,156 @@
-{{define "title"}}Edit Goal{{end}} {{define "description"}}Modify your goal
-details, update deadlines, mark achievements, and adjust visibility settings for
-your timeline.{{end}} {{define "main"}}
-<div class="flex flex-col gap-2">
-  <a href="/goals" class="text-base-content/50 hover:text-base-content"
-    >&larr; Back</a
-  >
-  <form action="/goals/{{ .Form.ID }}" method="post">
-    <fieldset
-      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+{{ define "title" }}Edit Goal{{ end }}
+{{ define "description" }}
+  Modify your goal details, update deadlines, mark achievements, and adjust
+  visibility settings for your timeline.
+{{ end }}
+{{ define "main" }}
+  <div class="flex flex-col gap-2">
+    <a href="/goals" class="text-base-content/50 hover:text-base-content"
+      >&larr; Back</a
     >
-      <legend class="fieldset-legend">Edit Goal</legend>
-
-      <label for="goal" class="label">Goal</label>
-      <textarea
-        id="goal"
-        name="goal"
-        type="text"
-        class="textarea"
-        placeholder="My goal"
+    <form action="/goals/{{ .Form.ID }}" method="post">
+      <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
       >
+        <legend class="fieldset-legend">Edit Goal</legend>
+
+        <label for="goal" class="label">Goal</label>
+        <textarea
+          id="goal"
+          name="goal"
+          type="text"
+          class="textarea"
+          placeholder="My goal"
+        >
 {{ .Form.Goal }}</textarea
-      >
-      {{with .Form.Errors.goal}}
-      <label class="label">
-        <span class="label-text-alt text-error">{{.}}</span>
-      </label>
-      {{end}}
+        >
+        {{ with .Form.Errors.goal }}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ . }}</span>
+          </label>
+        {{ end }}
 
-      <label for="due" class="label">Due</label>
-      <input
-        id="due"
-        name="due"
-        type="date"
-        class="input"
-        value="{{ .Form.Due }}"
-      />
-      {{with .Form.Errors.due}}
-      <label class="label">
-        <span class="label-text-alt text-error">{{.}}</span>
-      </label>
-      {{end}}
 
-      <label for="achieved" class="label">
+        <label for="due" class="label">Due</label>
         <input
-          id="achieved"
-          type="checkbox"
-          name="achieved"
-          class="checkbox"
-          {{if
-          .Form.Achieved}}checked{{end}}
+          id="due"
+          name="due"
+          type="date"
+          class="input"
+          value="{{ .Form.Due }}"
         />
-        Achieved
-      </label>
-      {{with .Form.Errors.achieved}}
-      <label class="label">
-        <span class="label-text-alt text-error">{{.}}</span>
-      </label>
-      {{end}}
+        {{ with .Form.Errors.due }}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ . }}</span>
+          </label>
+        {{ end }}
 
-      <label for="visible" class="label">
-        <input
-          id="visible"
-          type="checkbox"
-          name="visible"
-          class="checkbox"
-          {{
-          if
-          .Form.VisibleToPublic
-          }}checked{{
-          end
-          }}
-        />
-        Visible to the public after shared
-      </label>
-      {{with .Form.Errors.visible}}
-      <label class="label">
-        <span class="label-text-alt text-error">{{.}}</span>
-      </label>
-      {{end}}
 
-      <div class="grid grid-cols-4 gap-1 mt-4">
-        <button class="btn btn-neutral col-span-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-check-icon lucide-check"
-          >
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-          Save
-        </button>
-        <button class="btn" hx-delete="/goals/{{ .Form.ID }}">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-trash-icon lucide-trash"
-          >
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-            <path d="M3 6h18" />
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          </svg>
-        </button>
-      </div>
-    </fieldset>
-  </form>
-</div>
+        <label for="achieved" class="label">
+          <input
+            id="achieved"
+            type="checkbox"
+            name="achieved"
+            class="checkbox"
+            {{ if
+              .Form.Achieved
+            }}
+              checked
+            {{ end }}
+          />
+          Achieved
+        </label>
+        {{ with .Form.Errors.achieved }}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ . }}</span>
+          </label>
+        {{ end }}
 
-{{ with .Flash }}
-<div hx-ext="remove-me">
-  <div
-    role="alert"
-    remove-me="3s"
-    class="absolute bottom-2 md:right-2 right-6 alert alert-success"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="h-6 w-6 shrink-0 stroke-current"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-    <span>{{ .Content }}</span>
+
+        <label for="visible" class="label">
+          <input
+            id="visible"
+            type="checkbox"
+            name="visible"
+            class="checkbox"
+            {{ if
+              .Form.VisibleToPublic
+            }}
+              checked
+            {{ end }}
+          />
+          Visible to the public after shared
+        </label>
+        {{ with .Form.Errors.visible }}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ . }}</span>
+          </label>
+        {{ end }}
+
+
+        <div class="grid grid-cols-4 gap-1 mt-4">
+          <button class="btn btn-neutral col-span-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-check-icon lucide-check"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            Save
+          </button>
+          <button class="btn" hx-delete="/goals/{{ .Form.ID }}">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-trash-icon lucide-trash"
+            >
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+      </fieldset>
+    </form>
   </div>
-</div>
-{{ end }} {{ end }}
+
+  {{ with .Flash }}
+    <div hx-ext="remove-me">
+      <div
+        role="alert"
+        remove-me="3s"
+        class="absolute bottom-2 md:right-2 right-6 alert alert-success"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 shrink-0 stroke-current"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>{{ .Content }}</span>
+      </div>
+    </div>
+  {{ end }}
+{{ end }}

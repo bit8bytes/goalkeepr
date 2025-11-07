@@ -1,11 +1,8 @@
-{{ define "center" }}
-  {{template "base" .}}
-{{ end }}
-
-{{ define "body-content" }}
+{{ define "center" }}{{ template "base" . }}{{ end }}
+{{ define "body" }}
   <main
     class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"
   >
-    {{template "main" . }}
+    {{ template "main" . }}
   </main>
 {{ end }}

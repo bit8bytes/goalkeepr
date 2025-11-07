@@ -1,9 +1,6 @@
-{{ define "landing" }}
-  {{template "base" .}}
-{{ end }}
-
-{{ define "body-content" }}
+{{ define "landing" }}{{ template "base" . }}{{ end }}
+{{ define "body" }}
   {{ template "header" . }}
-  <main class="flex-1">{{template "main" . }}</main>
+  <main class="flex-1">{{ template "main" . }}</main>
   {{ template "footer" . }}
 {{ end }}

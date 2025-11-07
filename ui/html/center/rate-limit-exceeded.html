@@ -1,16 +1,18 @@
-{{define "title"}}Rate Limit Exceeded{{end}} {{define "description"}}You have
-made too many requests. Please wait a moment before trying again.{{end}}
-{{define "main"}}
-<div class="text-center">
-  <h1 class="text-3xl font-bold mb-4">Slow Down There!</h1>
-  <p class="text-lg mb-4">You've exceeded the rate limit for requests.</p>
-  <p class="mb-6">
-    Please wait a moment before making another request. <br />
-    This helps us keep the service running smoothly for everyone.
-  </p>
-  {{ with .Data.TraceID }}
-  <p class="text-sm text-gray-600 mb-4">Reference ID: {{ . }}</p>
-  {{ end }}
-  <a href="/" class="btn btn-primary">Return</a>
-</div>
-{{end}}
+{{ define "title" }}Rate Limit Exceeded{{ end }}
+{{ define "description" }}
+  You have made too many requests. Please wait a moment before trying again.
+{{ end }}
+{{ define "main" }}
+  <div class="text-center">
+    <h1 class="text-3xl font-bold mb-4">Slow Down There!</h1>
+    <p class="text-lg mb-4">You've exceeded the rate limit for requests.</p>
+    <p class="mb-6">
+      Please wait a moment before making another request. <br />
+      This helps us keep the service running smoothly for everyone.
+    </p>
+    {{ with .Data.TraceID }}
+      <p class="text-sm text-gray-600 mb-4">Reference ID: {{ . }}</p>
+    {{ end }}
+    <a href="/" class="btn btn-primary">Return</a>
+  </div>
+{{ end }}

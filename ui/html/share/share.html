@@ -1,70 +1,78 @@
-{{define "title"}}Public Goal Timeline{{end}} {{define "description"}}View a shared goal timeline with milestones, achievements, and progress updates. Track someone&#39;s journey and roadmap publicly.{{end}}
-{{define "main"}}
-<div class="mb-4">
-  <hgroup class="text-center">
-    <h1 class="text-lg font-bold text-base-content/50">
-      {{with .Data.Branding}}{{.Title}}{{end}}
-    </h1>
-    <p class="text-sm text-base-content/30">
-      {{with .Data.Branding}}{{.Description}}{{end}}
-    </p>
-  </hgroup>
-</div>
-{{ if .Data.Goals }}
-<ul class="timeline timeline-vertical">
-  {{ range $index, $goal := .Data.Goals }}
-  <li>
-    {{ if eq (mod $index 2) 0 }}
-    <div class="timeline-start timeline-box">
-      {{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}
-    </div>
-    {{ if ne $index 0 }}
-    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }}
-    <div class="timeline-middle">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </div>
-    {{ if ne $index (sub (len $.Data.Goals) 1) }}
-    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }} {{ else }}
-    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    <div class="timeline-middle">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </div>
-    <div class="timeline-end timeline-box">
-      {{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}
-    </div>
-    {{ if ne $index (sub (len $.Data.Goals) 1) }}
-    <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-    {{ end }} {{ end }}
-  </li>
-  {{ end }}
-</ul>
-{{ else }}
-<div class="text-center text-base-content/50">
-  <p>No public goals to display</p>
-</div>
+{{ define "title" }}Public Goal Timeline{{ end }}
+{{ define "description" }}
+  View a shared goal timeline with milestones, achievements, and progress
+  updates. Track someone&#39;s journey and roadmap publicly.
 {{ end }}
+{{ define "main" }}
+  <div class="mb-4">
+    <hgroup class="text-center">
+      <h1 class="text-lg font-bold text-base-content/50">
+        {{ with .Data.Branding }}{{ .Title }}{{ end }}
+      </h1>
+      <p class="text-sm text-base-content/30">
+        {{ with .Data.Branding }}{{ .Description }}{{ end }}
+      </p>
+    </hgroup>
+  </div>
+  {{ if .Data.Goals }}
+    <ul class="timeline timeline-vertical">
+      {{ range $index, $goal := .Data.Goals }}
+        <li>
+          {{ if eq (mod $index 2) 0 }}
+            <div class="timeline-start timeline-box">
+              {{ $goal.Due.Format "2006" }}:
+              {{ $goal.Goal }}
+            </div>
+            {{ if ne $index 0 }}
+              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            {{ end }}
+            <div class="timeline-middle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            {{ if ne $index (sub (len $.Data.Goals) 1) }}
+              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            {{ end }}
+          {{ else }}
+            <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            <div class="timeline-middle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="timeline-end timeline-box">
+              {{ $goal.Due.Format "2006" }}:
+              {{ $goal.Goal }}
+            </div>
+            {{ if ne $index (sub (len $.Data.Goals) 1) }}
+              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            {{ end }}
+          {{ end }}
+        </li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <div class="text-center text-base-content/50">
+      <p>No public goals to display</p>
+    </div>
+  {{ end }}
 {{ end }}

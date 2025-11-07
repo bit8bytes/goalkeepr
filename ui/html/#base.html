@@ -1,24 +1,24 @@
 {{ define "base" }}
-<!DOCTYPE html>
-<html lang="en" data-theme="wireframe">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content='{{template "description" .}}' />
-    <meta
-      name="keywords"
-      content="Goalkeeper makes it
+  <!doctype html>
+  <html lang="en" data-theme="wireframe">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="description" content="{{ template "description" . }}" />
+      <meta
+        name="keywords"
+        content="Goalkeeper makes it
     simple to track and share your annual goals."
-    />
-    <title>{{template "title" .}} - Goalkeepr</title>
-    <link rel="stylesheet" href="/static/dist/index.css" />
-    <link rel="icon" href="data:," />
-    <script src="/static/dist/htmx.min.js"></script>
-    <script src="/static/dist/htmx-ext-preload.js"></script>
-    <script src="/static/dist/remove-me.js"></script>
-  </head>
-  <body hx-ext="preload" class="flex flex-col min-h-screen">
-    {{block "body-content" .}}{{end}}
-  </body>
-</html>
+      />
+      <title>{{ template "title" . }} - Goalkeepr</title>
+      <link rel="stylesheet" href="/static/dist/index.css" />
+      <link rel="icon" href="data:," />
+      <script src="/static/dist/htmx.min.js"></script>
+      <script src="/static/dist/htmx-ext-preload.js"></script>
+      <script src="/static/dist/remove-me.js"></script>
+    </head>
+    <body hx-ext="preload" class="flex flex-col min-h-screen">
+      {{ block "body" . }}{{ end }}
+    </body>
+  </html>
 {{ end }}

@@ -87,7 +87,13 @@ func main() {
 
 	logger.Info("database version", slog.Int64("version", *dbVersion))
 
-	templateCache, err := newTemplateCache()
+	htmxFuncs := template.FuncMap{
+		"preload": func(event string) template.HTMLAttr {
+			return template.HTMLAttr(fmt.Sprintf(`preload="%s"`, event))
+		},
+	}
+
+	templateCache, err := newTemplateCache(WithFunctions(htmxFuncs))
 	if err != nil {
 		logger.Error("error creating template cache", slog.String("msg", err.Error()))
 		os.Exit(1)

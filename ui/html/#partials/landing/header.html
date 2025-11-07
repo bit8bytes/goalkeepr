@@ -1,35 +1,35 @@
-{{define "header"}}
-<header class="fixed w-full bg-base-100 z-100">
-  <div
-    class="flex mx-auto max-w-7xl w-full h-[72px] items-center justify-between px-4"
-  >
-    <a href="/" class="flex font-bold gap-1 items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-target-icon lucide-target"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="6" />
-        <circle cx="12" cy="12" r="2" />
-      </svg>
-      <span>Goalkeepr</span>
-    </a>
-    <div class="flex gap-1">
-      {{if .IsAuthenticated}}
-        <a href="/goals" class="btn btn-primary rounded-full">Go to App</a>
-      {{else}}
-        <a href="/signin" class="btn btn-ghost rounded-full">Sign In</a>
-        <a href="/signup" class="btn btn-primary rounded-full">Sign Up</a>
-      {{end}}
+{{ define "header" }}
+  <header class="fixed w-full bg-base-100 z-100">
+    <div
+      class="flex mx-auto max-w-7xl w-full h-[72px] items-center justify-between px-4"
+    >
+      <a href="/" class="flex font-bold gap-1 items-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-target-icon lucide-target"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg>
+        <span>Goalkeepr</span>
+      </a>
+      <div class="flex gap-1">
+        {{ if .IsAuthenticated }}
+          <a href="/goals" class="btn btn-primary rounded-full">Go to App</a>
+        {{ else }}
+          <a href="/signin" class="btn btn-ghost rounded-full">Sign In</a>
+          <a href="/signup" class="btn btn-primary rounded-full">Sign Up</a>
+        {{ end }}
+      </div>
     </div>
-  </div>
-</header>
-{{end}}
+  </header>
+{{ end }}
