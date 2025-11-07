@@ -52,7 +52,7 @@ func newTemplateCache() (cache, error) {
 		{
 			name:   layout.Settings,
 			layout: "html/#layouts/settings.html",
-			pages:  []string{"html/pages/settings/*.html"},
+			pages:  []string{"html/settings/*.html"},
 			extras: []string{"html/#partials/app/*.html"},
 		},
 		{

@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -19,8 +20,8 @@ import (
 func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templateLayout, templatePage string, data any) {
 	ts, ok := app.templateCache[templatePage]
 	if !ok {
-		app.logger.Error("Template not found in cache")
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		err := fmt.Errorf("template not found in cache; layout %s, page: %s", templateLayout, templatePage)
+		app.renderError(w, r, err, "Error loading this page.")
 		return
 	}
 
@@ -38,7 +39,7 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templ
 }
 
 func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, userMessage string) {
-	app.logger.Error("error occured", slog.String("msg", err.Error()))
+	app.logger.ErrorContext(r.Context(), "error occured", slog.String("msg", err.Error()))
 
 	data := app.newTemplateData(r)
 	data.Data = map[string]any{
