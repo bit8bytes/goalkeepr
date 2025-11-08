@@ -201,6 +201,75 @@ func TestSignupHandler(t *testing.T) {
 	})
 }
 
+func TestSignInRateLimit(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	for i := 1; i <= 5; i++ {
+		code, _, _ := ts.postForm(t, "/signin", url.Values{})
+		assert.Equal(t, code, http.StatusUnprocessableEntity)
+	}
+
+	code, _, body := ts.postForm(t, "/signin", url.Values{})
+	assert.Equal(t, code, http.StatusTooManyRequests)
+	assert.StringContains(t, body, "Slow Down There!")
+}
+
+func TestSignupRateLimit(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	for i := 1; i <= 5; i++ {
+		code, _, _ := ts.postForm(t, "/signup", url.Values{})
+		assert.Equal(t, code, http.StatusUnprocessableEntity)
+	}
+
+	code, _, body := ts.postForm(t, "/signup", url.Values{})
+	assert.Equal(t, code, http.StatusTooManyRequests)
+	assert.StringContains(t, body, "Slow Down There!")
+}
+
+func BenchmarkRateLimitSignUp(b *testing.B) {
+	app := newTestApplication(b)
+	ts := newTestServer(b, app.routes())
+	defer ts.Close()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			ts.postForm(b, "/signup", url.Values{})
+		}
+	})
+}
+
+func BenchmarkRateLimitSignIn(b *testing.B) {
+	app := newTestApplication(b)
+	ts := newTestServer(b, app.routes())
+	defer ts.Close()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			ts.postForm(b, "/signin", url.Values{})
+		}
+	})
+}
+
+func FuzzRateLimitGet(f *testing.F) {
+	f.Add("192.168.1.1")
+	f.Add("::1")
+	f.Add("")
+
+	f.Fuzz(func(t *testing.T, ip string) {
+		l := newLimiters()
+
+		limiter := l.get(ip)
+		if limiter == nil {
+			t.Error("limiter should never be nil")
+		}
+	})
+}
+
 func FuzzSignupHandler(f *testing.F) {
 	f.Add("test@example.com", "password123", "password123", "")
 	f.Add("", "", "", "")

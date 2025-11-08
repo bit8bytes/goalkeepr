@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
+	"net"
 	"net/http"
-	"time"
 
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
-	"golang.org/x/time/rate"
 )
 
 // Returns the user id from context. If not found it will return 0
@@ -32,9 +31,14 @@ func (app *app) withAuth(next http.HandlerFunc) http.Handler {
 	})
 }
 
-func (app *app) withRateLimit(next http.Handler) http.Handler {
+func (app *app) withRate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		limiter := getRateLimiter(r.RemoteAddr)
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr // fallback
+		}
+
+		limiter := app.limiters.get(ip)
 
 		if !limiter.Allow() {
 			app.render(w, r, http.StatusTooManyRequests, layout.Center, page.RateLimitExceeded, nil)
@@ -43,20 +47,6 @@ func (app *app) withRateLimit(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-func getRateLimiter(ip string) *rate.Limiter {
-	mu.Lock()
-	defer mu.Unlock()
-
-	limiter, exists := limiters[ip]
-	if !exists {
-		limiter =
-			rate.NewLimiter(rate.Every(time.Minute/5), 5) // 5 per minute
-		limiters[ip] = limiter
-	}
-
-	return limiter
 }
 
 func (app *app) cache(next http.Handler) http.Handler {

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"golang.org/x/time/rate"
 	_ "modernc.org/sqlite"
 
 	"github.com/bit8bytes/goalkeepr/internal/branding"
@@ -27,11 +26,6 @@ const (
 	GoalkeeprCookieName = "goalkeepr"
 )
 
-var (
-	mu       sync.Mutex
-	limiters = make(map[string]*rate.Limiter)
-)
-
 type config struct {
 	env  string
 	port int
@@ -43,6 +37,7 @@ type app struct {
 	logger         *slog.Logger
 	templateCache  map[string]*template.Template
 	sessionManager *scs.SessionManager
+	limiters       *limiters
 	modules        *modules
 
 	wg sync.WaitGroup
@@ -103,6 +98,8 @@ func main() {
 	sessionManager.Lifetime = 24 * time.Hour
 	sessionManager.Cookie.Name = GoalkeeprCookieName
 
+	limiters := newLimiters()
+
 	modules := &modules{
 		users:    users.New(dbP.DB),
 		goals:    goals.New(dbP.DB),
@@ -116,6 +113,7 @@ func main() {
 		templateCache:  templateCache,
 		sessionManager: sessionManager,
 		modules:        modules,
+		limiters:       limiters,
 	}
 
 	if err := app.serve(); err != nil {
@@ -123,8 +121,6 @@ func main() {
 		os.Exit(1)
 	}
 }
-
-var envs = []string{"dev", "stage", "prod"}
 
 func setupConfig(cfg *config) error {
 	flag.StringVar(&cfg.env, "env", "prod", "Environment (dev|stage|prod)")
@@ -136,8 +132,9 @@ func setupConfig(cfg *config) error {
 
 	flag.Parse()
 
+	envs := []string{"dev", "stage", "prod"}
 	if ok := slices.Contains(envs, cfg.env); !ok {
-		return fmt.Errorf("env must be on of: dev, stage, prod")
+		return fmt.Errorf("env must be on of: %v", envs)
 	}
 
 	if cfg.port < 0 || cfg.port > 65535 {

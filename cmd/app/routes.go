@@ -17,9 +17,9 @@ func (app *app) routes() http.Handler {
 	mux.HandleFunc("/imprint", app.getImprint)
 
 	mux.HandleFunc("GET /signup", app.getSignUp)
-	mux.Handle("POST /signup", app.withRateLimit(http.HandlerFunc(app.postSignUp)))
+	mux.Handle("POST /signup", app.withRate(http.HandlerFunc(app.postSignUp)))
 	mux.HandleFunc("GET /signin", app.getSignIn)
-	mux.Handle("POST /signin", app.withRateLimit(http.HandlerFunc(app.postSignIn)))
+	mux.Handle("POST /signin", app.withRate(http.HandlerFunc(app.postSignIn)))
 	mux.HandleFunc("POST /signout", app.postSignOut)
 
 	mux.HandleFunc("GET /s/{id}", app.getShare)

@@ -21,7 +21,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/users"
 )
 
-func newTestApplication(t *testing.T) *app {
+func newTestApplication(tb testing.TB) *app {
 	var cfg config
 
 	cfg.db.Driver = "sqlite"
@@ -29,11 +29,11 @@ func newTestApplication(t *testing.T) *app {
 
 	dbP, err := data.New(cfg.db.Driver, cfg.db.Path)
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 
 	if _, err := dbP.AutoMigrate(); err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 
 	// Create an instance of the template cache with HTMX functions.
@@ -43,7 +43,7 @@ func newTestApplication(t *testing.T) *app {
 	}
 	templateCache, err := newTemplateCache(WithFunctions(htmxFuncs))
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 
 	sessionManager := scs.New()
@@ -57,12 +57,15 @@ func newTestApplication(t *testing.T) *app {
 		share:    share.New(dbP.DB),
 	}
 
+	limiters := newLimiters()
+
 	return &app{
 		config:         cfg,
 		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
 		templateCache:  templateCache,
 		sessionManager: sessionManager,
 		modules:        modules,
+		limiters:       limiters,
 	}
 }
 
@@ -71,12 +74,12 @@ type testServer struct {
 	*httptest.Server
 }
 
-func newTestServer(t *testing.T, h http.Handler) *testServer {
+func newTestServer(tb testing.TB, h http.Handler) *testServer {
 	ts := httptest.NewTLSServer(h)
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 
 	// Add the cookie jar to the test server client. Any response cookies will
@@ -135,17 +138,17 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, strin
 }
 
 // Implement a post() method on our custom testServer type for making POST requests.
-func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) (int, http.Header, string) {
+func (ts *testServer) postForm(tb testing.TB, urlPath string, form url.Values) (int, http.Header, string) {
 	rs, err := ts.Client().PostForm(ts.URL+urlPath, form)
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 
 	// Read the response body from the test server.
 	defer rs.Body.Close()
 	body, err := io.ReadAll(rs.Body)
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 	body = bytes.TrimSpace(body)
 

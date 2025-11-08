@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/bit8bytes/goalkeepr/internal/branding"
@@ -15,6 +16,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 	"github.com/bit8bytes/toolbox/validator"
+	"golang.org/x/time/rate"
 )
 
 func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templateLayout, templatePage string, data any) {
@@ -180,4 +182,28 @@ func (app *app) logRequest(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+type limiters struct {
+	mu sync.Mutex
+	m  map[string]*rate.Limiter
+}
+
+func newLimiters() *limiters {
+	return &limiters{
+		m: make(map[string]*rate.Limiter),
+	}
+}
+
+func (l *limiters) get(ip string) *rate.Limiter {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	limiter, exists := l.m[ip]
+	if !exists {
+		limiter = rate.NewLimiter(rate.Every(time.Minute/5), 5)
+		l.m[ip] = limiter
+	}
+
+	return limiter
 }
