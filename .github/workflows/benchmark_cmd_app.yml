@@ -1,8 +1,6 @@
 name: Benchmark cmd/app
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
