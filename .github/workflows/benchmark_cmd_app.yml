@@ -29,7 +29,7 @@ jobs:
           go test -bench=. -benchmem -benchtime=10s -count=5 ./cmd/app | tee benchmark_result.txt
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: benchmark-results-cmd-app
           path: benchmark_result.txt
