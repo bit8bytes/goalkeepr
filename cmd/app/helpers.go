@@ -146,7 +146,9 @@ func (h *TraceHandler) Handle(ctx context.Context, r slog.Record) error {
 
 func generateTraceID() string {
 	bytes := make([]byte, 4)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err) // crypto/rand should never fail
+	}
 	return hex.EncodeToString(bytes)
 }
 
