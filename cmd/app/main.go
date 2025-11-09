@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html"
 	"html/template"
 	"log/slog"
 	"os"
@@ -84,7 +85,8 @@ func main() {
 
 	htmxFuncs := template.FuncMap{
 		"preload": func(event string) template.HTMLAttr {
-			return template.HTMLAttr(fmt.Sprintf(`preload="%s"`, event))
+			escaped := html.EscapeString(event)
+			return template.HTMLAttr(fmt.Sprintf(`preload="%s"`, escaped))
 		},
 	}
 
