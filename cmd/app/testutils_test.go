@@ -2,8 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"html/template"
 	"io"
 	"log/slog"
 	"net/http"
@@ -36,12 +34,7 @@ func newTestApplication(tb testing.TB) *app {
 		tb.Fatal(err)
 	}
 
-	// Create an instance of the template cache with HTMX functions.
-	htmxFuncs := template.FuncMap{
-		"get":     func(url string) template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf(`hx-get="%s"`, url)) },
-		"preload": func(event string) template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf(`preload="%s"`, event)) },
-	}
-	templateCache, err := newTemplateCache(WithFunctions(htmxFuncs))
+	templateCache, err := newTemplateCache()
 	if err != nil {
 		tb.Fatal(err)
 	}
