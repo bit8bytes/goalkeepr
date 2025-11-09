@@ -37,7 +37,9 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templ
 
 	w.WriteHeader(status)
 
-	buf.WriteTo(w)
+	if _, err := buf.WriteTo(w); err != nil {
+		app.logger.ErrorContext(r.Context(), "failed to write response", slog.String("msg", err.Error()))
+	}
 }
 
 func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, userMessage string) {
