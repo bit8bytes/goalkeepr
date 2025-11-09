@@ -24,7 +24,7 @@ func (p *SQLiteProvider) Open(path string) (*sql.DB, error) {
 	defer cancel()
 	err = db.PingContext(ctx)
 	if err != nil {
-		db.Close()
+		_ = db.Close() // Ignore close error, ping error takes precedence
 		return nil, err
 	}
 

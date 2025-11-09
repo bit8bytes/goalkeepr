@@ -168,7 +168,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		// Prevent timing attacks - use pre-computed bcrypt hash
 		dummyUser := &users.User{}
 		dummyUser.Password = users.Password{Hash: []byte(users.PreComputedHash)}
-		dummyUser.Password.Matches(form.Password)
+		_, _ = dummyUser.Password.Matches(form.Password) // Intentionally ignored to prevent timing attacks
 		match = false
 
 		app.logger.WarnContext(r.Context(), "error getting user by email", slog.String("msg", err.Error()))

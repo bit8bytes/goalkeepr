@@ -23,7 +23,7 @@
           {{ if eq (mod $index 2) 0 }}
             <a
               href="/goals/{{ $goal.ID }}"
-              {{ preload "mouseover" }}
+              preload="mouseover"
               class="timeline-start timeline-box"
             >
               {{ $goal.Due.Format "2006" }}:
@@ -67,7 +67,7 @@
             </div>
             <a
               href="/goals/{{ $goal.ID }}"
-              {{ preload "mouseover" }}
+              preload="mouseover"
               class="timeline-end timeline-box"
               >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
             >
@@ -85,7 +85,7 @@
         <div class="timeline-middle">
           <a
             href="/goals/add/"
-            {{ preload "mouseover" }}
+            preload="mouseover"
             class="btn btn-circle btn-ghost w-8 h-8 opacity-50"
           >
             <svg
@@ -108,7 +108,7 @@
     </ul>
   {{ else }}
     <div>
-      <a href="/goals/add/" {{ preload "mouseover" }} class="btn btn-primary">
+      <a href="/goals/add/" preload="mouseover" class="btn btn-primary">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -126,7 +126,7 @@
         </svg>
         First Goal
       </a>
-      <a href="/settings#branding" {{ preload "mouseover" }} class="btn">
+      <a href="/settings#branding" preload="mouseover" class="btn">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"

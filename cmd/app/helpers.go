@@ -37,7 +37,9 @@ func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templ
 
 	w.WriteHeader(status)
 
-	buf.WriteTo(w)
+	if _, err := buf.WriteTo(w); err != nil {
+		app.logger.ErrorContext(r.Context(), "failed to write response", slog.String("msg", err.Error()))
+	}
 }
 
 func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, userMessage string) {
@@ -144,7 +146,9 @@ func (h *TraceHandler) Handle(ctx context.Context, r slog.Record) error {
 
 func generateTraceID() string {
 	bytes := make([]byte, 4)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err) // crypto/rand should never fail
+	}
 	return hex.EncodeToString(bytes)
 }
 

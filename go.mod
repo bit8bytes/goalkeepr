@@ -1,6 +1,6 @@
 module github.com/bit8bytes/goalkeepr
 
-go 1.25.0
+go 1.25.3
 
 require (
 	github.com/alexedwards/scs/v2 v2.9.0
