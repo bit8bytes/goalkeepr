@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@source "./public/*.{html,js}";
-@plugin "daisyui" {
+@source not "./tailwindcss";
+@source not "./daisyui{,*}.mjs";
+
+@plugin "./daisyui.mjs" {
   themes: light --default, dark --prefersdark, all;
 }

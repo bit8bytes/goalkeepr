@@ -64,5 +64,8 @@ Before scaling any services it is recommend to scale the hardware. Go can handle
 
 ## Development
 
-- Go(lang)
-- npx/npm for Tailwindcss
+Prerequisites:
+
+- [Go-task](https://taskfile.dev/docs/installation#go-modules)
+- [Golang (latest)](https://go.dev)
+- [Tailwindcss](https://tailwindcss.com/blog/standalone-cli) 
