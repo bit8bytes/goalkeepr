@@ -25,10 +25,10 @@ run/app:
 	@echo 'Start the app in development mode...'
 	@go run ./cmd/app -env=dev -database-driver=sqlite -database-path=${DB_DSN}
 
-## tw: run tw
+## tw: run tw 
 .PHONY: tw
 tw:
-	npx @tailwindcss/cli -i ./ui/static/css/index.css -o ./ui/static/dist/index.css --watch -m
+	tailwindcss -i ./ui/static/css/index.css -o ./ui/static/dist/index.css --watch
 
 
 # ==================================================================================== #
