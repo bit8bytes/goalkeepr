@@ -25,6 +25,13 @@ tasks:
       - echo 'Start the app in development mode...'
       - go run ./cmd/app -env=dev -database-driver=sqlite -database-path={{.DB_DSN}}
 
+  run/reflex:
+    desc: Run the application with Reflex for auto-reload
+    aliases: [dev]
+    cmds:
+      - echo 'Starting app with Reflex auto-reload...'
+      - reflex -s -r '\.(go|html|css|js)$' -- go run ./cmd/app -env=dev -database-driver=sqlite -database-path={{.DB_DSN}}
+
   tw:
     desc: Run Tailwind CSS in watch mode
     cmds:

@@ -67,5 +67,6 @@ Before scaling any services it is recommend to scale the hardware. Go can handle
 Prerequisites:
 
 - [Go-task](https://taskfile.dev/docs/installation#go-modules)
+- [Go-reflex](https://github.com/cespare/reflex?tab=readme-ov-file#installation)
 - [Golang (latest)](https://go.dev)
 - [Tailwindcss](https://tailwindcss.com/blog/standalone-cli) 
