@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-//go:embed "html" "static"
+//go:embed "html" "static/dist"
 var Files embed.FS
 
 func staticFiles() fs.FS {
