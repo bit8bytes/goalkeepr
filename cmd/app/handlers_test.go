@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/bit8bytes/goalkeepr/pkg/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPublicPages(t *testing.T) {
@@ -153,7 +153,7 @@ func TestSignupHandler(t *testing.T) {
 	t.Run("GET displays signup form", func(t *testing.T) {
 		code, _, body := ts.get(t, "/signup")
 		assert.Equal(t, code, http.StatusOK)
-		assert.StringContains(t, body, `<form action="/signup" method="post" novalidate>`)
+		assert.Contains(t, body, `<form action="/signup" method="post" novalidate>`)
 	})
 
 	t.Run("POST with valid data creates user and redirects", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestSignupHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signup", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "Passwords do not match")
+		assert.Contains(t, body, "Passwords do not match")
 	})
 
 	t.Run("POST with invalid email shows error", func(t *testing.T) {
@@ -186,7 +186,7 @@ func TestSignupHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signup", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "This field must be a valid email address")
+		assert.Contains(t, body, "This field must be a valid email address")
 	})
 
 	t.Run("POST with short password shows error", func(t *testing.T) {
@@ -197,7 +197,7 @@ func TestSignupHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signup", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "This field must be at least 8 characters long")
+		assert.Contains(t, body, "This field must be at least 8 characters long")
 	})
 }
 
@@ -213,7 +213,7 @@ func TestSignInRateLimit(t *testing.T) {
 
 	code, _, body := ts.postForm(t, "/signin", url.Values{})
 	assert.Equal(t, code, http.StatusTooManyRequests)
-	assert.StringContains(t, body, "Slow Down There!")
+	assert.Contains(t, body, "Slow Down There!")
 }
 
 func TestSignupRateLimit(t *testing.T) {
@@ -228,7 +228,7 @@ func TestSignupRateLimit(t *testing.T) {
 
 	code, _, body := ts.postForm(t, "/signup", url.Values{})
 	assert.Equal(t, code, http.StatusTooManyRequests)
-	assert.StringContains(t, body, "Slow Down There!")
+	assert.Contains(t, body, "Slow Down There!")
 }
 
 func BenchmarkRateLimitSignUp(b *testing.B) {
@@ -312,7 +312,7 @@ func TestSigninHandler(t *testing.T) {
 	t.Run("GET displays signin form", func(t *testing.T) {
 		code, _, body := ts.get(t, "/signin")
 		assert.Equal(t, code, http.StatusOK)
-		assert.StringContains(t, body, `<form action="/signin" method="post" novalidate>`)
+		assert.Contains(t, body, `<form action="/signin" method="post" novalidate>`)
 	})
 
 	ts.signup(t, "user@example.com", "testpassword", "testpassword")
@@ -334,7 +334,7 @@ func TestSigninHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signin", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "Invalid email or password")
+		assert.Contains(t, body, "Invalid email or password")
 	})
 
 	t.Run("POST with invalid password shows error", func(t *testing.T) {
@@ -344,7 +344,7 @@ func TestSigninHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signin", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "Invalid email or password")
+		assert.Contains(t, body, "Invalid email or password")
 	})
 
 	t.Run("POST with empty fields shows errors", func(t *testing.T) {
@@ -352,6 +352,6 @@ func TestSigninHandler(t *testing.T) {
 
 		code, _, body := ts.postForm(t, "/signin", form)
 		assert.Equal(t, code, http.StatusUnprocessableEntity)
-		assert.StringContains(t, body, "This field cannot be blank")
+		assert.Contains(t, body, "This field cannot be blank")
 	})
 }
