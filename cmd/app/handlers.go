@@ -13,6 +13,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/page"
+	"github.com/bit8bytes/toolbox/vcs"
 )
 
 func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
@@ -576,4 +577,19 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, r, http.StatusOK, page.Share, data)
+}
+
+func (app *app) getHealthz(w http.ResponseWriter, r *http.Request) {
+	data := map[string]any{
+		"status": "available",
+		"system_info": map[string]string{
+			"env":     app.config.env,
+			"version": vcs.Version(),
+		},
+	}
+
+	err := app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }

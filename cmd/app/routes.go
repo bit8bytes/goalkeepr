@@ -38,6 +38,8 @@ func (app *app) routes() http.Handler {
 	mux.Handle("POST /settings/branding", app.withAuth(app.postBranding))
 	mux.Handle("DELETE /settings/delete-user", app.withAuth(app.deleteUser))
 
+	mux.HandleFunc("GET /api/healthz", app.getHealthz)
+
 	antiCSRF := http.NewCrossOriginProtection()
 	trace := newTrace()
 
