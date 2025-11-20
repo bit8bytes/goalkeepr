@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
-	"maps"
-	"path/filepath"
 
 	"github.com/bit8bytes/goalkeepr/ui"
-	"github.com/bit8bytes/goalkeepr/ui/layout"
+	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
 type templateData struct {
@@ -27,34 +25,13 @@ type metadata struct {
 type templateCache struct {
 	fsys      fs.FS
 	functions template.FuncMap
-	layouts   []layout.Layout
-}
-
-// CacheOption configures a templateCache.
-type CacheOption func(*templateCache)
-
-// WithFunctions adds custom template functions.
-func WithFunctions(fns template.FuncMap) CacheOption {
-	return func(tc *templateCache) {
-		for key := range fns {
-			if _, exists := tc.functions[key]; exists {
-				panic(fmt.Sprintf("function %q already exists and cannot be overwritten", key))
-			}
-		}
-		maps.Copy(tc.functions, fns)
-	}
 }
 
 // newTemplateCache creates a new template cache with optional configuration.
-func newTemplateCache(opts ...CacheOption) (map[string]*template.Template, error) {
+func newTemplateCache() (map[string]*template.Template, error) {
 	tc := &templateCache{
-		fsys:      ui.Files,
+		fsys:      ui.Views(),
 		functions: defaultFunctions(),
-		layouts:   defaultLayouts(),
-	}
-
-	for _, opt := range opts {
-		opt(tc)
 	}
 
 	return tc.build()
@@ -68,54 +45,33 @@ func defaultFunctions() template.FuncMap {
 	}
 }
 
-// defaultLayouts returns the standard layout configuration.
-func defaultLayouts() []layout.Layout {
-	return []layout.Layout{
-		layout.Convention(layout.Landing),
-		layout.Convention(layout.App),
-		layout.WithPartials(layout.Settings, layout.App),
-		layout.Convention(layout.Share),
-		layout.WithPartials(layout.Auth, layout.Share),
-		layout.WithoutPartials(layout.Center),
-	}
-}
-
 // build compiles all templates and returns the cache.
 func (tc *templateCache) build() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
 
-	for _, l := range tc.layouts {
-		if err := tc.addLayoutPages(cache, l); err != nil {
-			return nil, fmt.Errorf("layout %q: %w", l.Name, err)
+	for _, p := range page.All() {
+		if err := tc.addPage(cache, p); err != nil {
+			return nil, fmt.Errorf("page %q: %w", p.Name(), err)
 		}
 	}
 
 	return cache, nil
 }
 
-// addLayoutPages adds all pages for a given layout to the cache.
-func (tc *templateCache) addLayoutPages(cache map[string]*template.Template, l layout.Layout) error {
-	for _, pattern := range l.Pages {
-		pages, err := fs.Glob(tc.fsys, pattern)
-		if err != nil {
-			return fmt.Errorf("glob %q: %w", pattern, err)
-		}
+// addPage adds a page and its associated layout to the cache.
+func (tc *templateCache) addPage(cache map[string]*template.Template, page page.Page) error {
+	layout := page.Layout()
 
-		for _, page := range pages {
-			name := filepath.Base(page)
+	// Build pattern list: base -> layout -> partials -> page
+	patterns := []string{"base.html", layout.Name()}
+	patterns = append(patterns, layout.Partials()...)
+	patterns = append(patterns, page.Name())
 
-			patterns := []string{"html/#base.html", l.Layout}
-			patterns = append(patterns, l.Partials...)
-			patterns = append(patterns, page)
-
-			tmpl, err := template.New(name).Funcs(tc.functions).ParseFS(tc.fsys, patterns...)
-			if err != nil {
-				return fmt.Errorf("parse template %q: %w", name, err)
-			}
-
-			cache[name] = tmpl
-		}
+	tmpl, err := template.New(page.Name()).Funcs(tc.functions).ParseFS(tc.fsys, patterns...)
+	if err != nil {
+		return fmt.Errorf("parse template: %w", err)
 	}
 
+	cache[page.Name()] = tmpl
 	return nil
 }

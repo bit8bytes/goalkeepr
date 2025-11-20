@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
@@ -41,7 +40,7 @@ func (app *app) withRate(next http.Handler) http.Handler {
 		limiter := app.limiters.get(ip)
 
 		if !limiter.Allow() {
-			app.render(w, r, http.StatusTooManyRequests, layout.Center, page.RateLimitExceeded, nil)
+			app.render(w, r, http.StatusTooManyRequests, page.RateLimitExceeded, nil)
 			return
 		}
 

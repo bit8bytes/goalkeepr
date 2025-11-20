@@ -19,13 +19,6 @@ tasks:
   # ==================================================================================== #
 
   run:
-    desc: Run the application in development mode
-    aliases: [run/app]
-    cmds:
-      - echo 'Start the app in development mode...'
-      - go run ./cmd/app -env=dev -database-driver=sqlite -database-path={{.DB_DSN}}
-
-  run/reflex:
     desc: Run the application with Reflex for auto-reload
     aliases: [dev]
     cmds:

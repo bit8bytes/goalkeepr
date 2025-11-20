@@ -12,28 +12,27 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
 	"github.com/bit8bytes/goalkeepr/internal/users"
-	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
 func (app *app) getNotFound(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+	app.render(w, r, http.StatusNotFound, page.NotFound, data)
 }
 
 func (app *app) getPrivacy(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	app.render(w, r, http.StatusOK, layout.Landing, page.Privacy, data)
+	app.render(w, r, http.StatusOK, page.Privacy, data)
 }
 
 func (app *app) getImprint(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	app.render(w, r, http.StatusOK, layout.Landing, page.Imprint, data)
+	app.render(w, r, http.StatusOK, page.Imprint, data)
 }
 
 func (app *app) getLanding(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	app.render(w, r, http.StatusOK, layout.Landing, page.Landing, data)
+	app.render(w, r, http.StatusOK, page.Landing, data)
 }
 
 func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +44,7 @@ func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Form = &users.SignUpForm{}
-	app.render(w, r, http.StatusOK, layout.Auth, page.SignUp, data)
+	app.render(w, r, http.StatusOK, page.SignUp, data)
 }
 
 func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +54,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		form := &users.SignUpForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignUp, data)
 		return
 	}
 
@@ -83,7 +82,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignUp, data)
 		return
 	}
 
@@ -94,7 +93,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		data := app.newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignUp, data)
 		return
 	}
 
@@ -104,7 +103,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		data := app.newTemplateData(r)
 		form.AddError("email", "This email cannot be used.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignUp, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignUp, data)
 		return
 	}
 
@@ -121,7 +120,7 @@ func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Form = new(users.SignInForm)
-	app.render(w, r, http.StatusOK, layout.Auth, page.SignIn, data)
+	app.render(w, r, http.StatusOK, page.SignIn, data)
 }
 
 func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +130,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		form := &users.SignInForm{} // Needs to initialized. The other returns already have it.
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignIn, data)
 		return
 	}
 
@@ -156,7 +155,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignIn, data)
 		return
 	}
 
@@ -186,7 +185,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		form := users.SignInForm{Email: form.Email} // Only email
 		form.AddError("email", "Invalid email or password.")
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.Auth, page.SignIn, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.SignIn, data)
 		return
 	}
 
@@ -228,13 +227,13 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Data = forms
-	app.render(w, r, http.StatusOK, layout.App, page.Goals, data)
+	app.render(w, r, http.StatusOK, page.Goals, data)
 }
 
 func (app *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = goals.Form{Due: time.Now().Format(HTMLDateFormat)}
-	app.render(w, r, http.StatusOK, layout.App, page.AddGoal, data)
+	app.render(w, r, http.StatusOK, page.AddGoal, data)
 }
 
 func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
@@ -258,7 +257,7 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.AddGoal, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.AddGoal, data)
 		return
 	}
 
@@ -295,7 +294,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	goal, err := app.modules.goals.Get(r.Context(), goalID, getUserID(r))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+			app.render(w, r, http.StatusNotFound, page.NotFound, data)
 			return
 		}
 		app.renderError(w, r, err, "Couldn't get your goals.")
@@ -312,7 +311,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 
 	data.Form = editGoalForm
 	data.Flash = app.flash(r.Context())
-	app.render(w, r, http.StatusOK, layout.App, page.EditGoal, data)
+	app.render(w, r, http.StatusOK, page.EditGoal, data)
 }
 
 func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
@@ -344,7 +343,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, layout.App, page.EditGoal, data)
+		app.render(w, r, http.StatusUnprocessableEntity, page.EditGoal, data)
 		return
 	}
 
@@ -387,7 +386,7 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 
 	if rowsAffected == 0 {
 		data := app.newTemplateData(r)
-		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+		app.render(w, r, http.StatusNotFound, page.NotFound, data)
 		return
 	}
 
@@ -413,7 +412,7 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 		"Host":  r.Host,
 	}
 
-	app.render(w, r, http.StatusOK, layout.App, page.ShareGoals, data)
+	app.render(w, r, http.StatusOK, page.ShareGoals, data)
 }
 
 func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
@@ -484,7 +483,7 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = forms
 	data.Flash = app.flash(r.Context())
-	app.render(w, r, http.StatusOK, layout.Settings, page.Settings, data)
+	app.render(w, r, http.StatusOK, page.Settings, data)
 }
 
 func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
@@ -547,14 +546,14 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	publicID := r.PathValue("id")
 	if publicID == "" {
 		data := app.newTemplateData(r)
-		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+		app.render(w, r, http.StatusNotFound, page.NotFound, data)
 		return
 	}
 
 	userID, err := app.modules.share.GetUserIDByPublicID(r.Context(), publicID)
 	if err != nil {
 		data := app.newTemplateData(r)
-		app.render(w, r, http.StatusNotFound, layout.Center, page.NotFound, data)
+		app.render(w, r, http.StatusNotFound, page.NotFound, data)
 		return
 	}
 
@@ -576,5 +575,5 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 		"Branding": branding,
 	}
 
-	app.render(w, r, http.StatusOK, layout.Share, page.Share, data)
+	app.render(w, r, http.StatusOK, page.Share, data)
 }
