@@ -1,50 +1,35 @@
-// Package layout provides constants and builders for all layouts.
 package layout
 
-import "fmt"
-
+// Layout represents an HTML layout template with optional partials.
 type Layout struct {
-	Name     string
-	Layout   string
-	Pages    []string
-	Partials []string
+	path     string
+	partials []string
 }
 
-const (
-	Auth string = "auth"
+// Name returns the file path to the layout template.
+func (l Layout) Name() string {
+	return l.path
+}
 
-	App      string = "app"
-	Settings string = "settings"
-	Share    string = "share"
+// Partials returns the file paths to partial templates.
+func (l Layout) Partials() []string {
+	return l.partials
+}
 
-	Center string = "center"
-
-	Landing string = "landing"
-)
-
-// Convention builds a layout following standard conventions:
-// - html/#layouts/{name}.html
-// - html/{name}/*.html
-// - html/#partials/{name}/*.html
-func Convention(name string) Layout {
+// New creates a new Layout with the specified path and optional partial paths.
+func New(path string, partials ...string) Layout {
 	return Layout{
-		Name:     name,
-		Layout:   fmt.Sprintf("html/#layouts/%s.html", name),
-		Pages:    []string{fmt.Sprintf("html/%s/*.html", name)},
-		Partials: []string{fmt.Sprintf("html/#partials/%s/*.html", name)},
+		path:     path,
+		partials: partials,
 	}
 }
 
-// WithPartials creates a layout using a different partials directory.
-func WithPartials(name, partialsName string) Layout {
-	l := Convention(name)
-	l.Partials = []string{fmt.Sprintf("html/#partials/%s/*.html", partialsName)}
-	return l
-}
-
-// WithoutPartials creates a layout with no partial templates.
-func WithoutPartials(name string) Layout {
-	l := Convention(name)
-	l.Partials = nil
-	return l
-}
+// Predefined layouts for the application.
+var (
+	Center   = New("(center)/layout.html")
+	Auth     = New("(auth)/layout.html")
+	Goals    = New("#shared/app/layout.html", "#shared/app/+partials/*.html")
+	Settings = New("#shared/app/layout.html", "#shared/app/+partials/*.html")
+	Share    = New("#shared/public/layout.html", "#shared/public/+partials/*.html")
+	Landing  = New("#shared/public/layout.html", "#shared/public/+partials/*.html")
+)

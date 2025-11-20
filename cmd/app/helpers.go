@@ -5,31 +5,34 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/goals"
-	"github.com/bit8bytes/goalkeepr/ui/layout"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 	"github.com/bit8bytes/toolbox/validator"
 	"golang.org/x/time/rate"
 )
 
-func (app *app) render(w http.ResponseWriter, r *http.Request, status int, templateLayout, templatePage string, data any) {
-	ts, ok := app.templateCache[templatePage]
+func (app *app) render(w http.ResponseWriter, r *http.Request, status int, page page.Page, data any) {
+	ts, ok := app.templateCache[page.Name()]
 	if !ok {
-		err := fmt.Errorf("template not found in cache; layout %s, page: %s", templateLayout, templatePage)
+		err := fmt.Errorf("template not found in cache; layout %s, page: %s",
+			page.Layout().Name(),
+			page.Name())
 		app.renderError(w, r, err, "Error loading this page.")
 		return
 	}
 
 	buf := new(bytes.Buffer)
 
-	err := ts.ExecuteTemplate(buf, templateLayout, data)
+	err := ts.ExecuteTemplate(buf, page.Layout().Name(), data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -51,7 +54,27 @@ func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, u
 		"Message": userMessage,
 	}
 
-	app.render(w, r, http.StatusInternalServerError, layout.Center, page.Error, data)
+	app.render(w, r, http.StatusInternalServerError, page.Error, data)
+}
+
+func (app *app) writeJSON(w http.ResponseWriter, status int, data map[string]any, headers http.Header) error {
+	js, err := json.MarshalIndent(data, "", "\t") // json.Marshal is faster then MarshalIndent
+	if err != nil {
+		return err
+	}
+
+	js = append(js, '\n')
+
+	maps.Copy(w.Header(), headers)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_, err = w.Write(js)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (app *app) newTemplateData(r *http.Request) *templateData {

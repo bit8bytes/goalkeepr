@@ -7,11 +7,19 @@ import (
 	"net/http"
 )
 
-//go:embed "html" "static/dist"
-var Files embed.FS
+//go:embed "views" "static/dist"
+var files embed.FS
 
 func staticFiles() fs.FS {
-	return Files
+	return files
+}
+
+func Views() fs.FS {
+	fs, err := fs.Sub(staticFiles(), "views")
+	if err != nil {
+		panic(err)
+	}
+	return fs
 }
 
 // Func ServeStaticFiles serves all embeded static files.
