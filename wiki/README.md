@@ -60,7 +60,7 @@ erDiagram
 
 ## Scaling
 
-Before scaling any services it is recommend to scale the hardware. Go can handle many requests with less CPU and RAM usage. After that, it is useful to identify the bottlenecks of the app. Which can be found in Issue [#16](https://github.com/bit8bytes/goalkeepr/issues/16). One predictable bottleneck will be SQLite, particularly the write operations.
+Before scaling any services it is recommend to scale the hardware. Go can handle many requests with less CPU and RAM usage. After that, it is useful to identify the bottlenecks of the app. Which can be found in Issue [#16](https://github.com/bit8bytes/goalkeepr/issues/16). One predictable bottleneck will be SQLite, particularly the write operations. Thus, when expanding to other countries, the application can easily run on other servers. The app would be accessible through a different domain or subdomain (e.g. goalkeepr.de, goalkeepr.fr, goalkeepr.es).  The database (SQLite) is limitted to this country which seems not to be an issue.
 
 ## Development
 
