@@ -8,7 +8,7 @@ type GoalView struct {
 	UserID          int64
 	Goal            string
 	Year            string
-	DueDate         string // formatted as HTML date (YYYY-MM-DD)
+	Due             time.Time
 	VisibleToPublic bool
 	Achieved        bool
 }
@@ -26,7 +26,7 @@ func (g *Goal) ToView() GoalView {
 	if g.Due.Valid {
 		dueTime := time.Unix(g.Due.Int64, 0)
 		view.Year = dueTime.Format("2006")
-		view.DueDate = dueTime.Format("2006-01-02")
+		view.Due = dueTime
 	}
 
 	return view

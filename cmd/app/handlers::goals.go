@@ -140,7 +140,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	editGoalForm := &goals.Form{
 		ID:              int(goal.ID),
 		Goal:            goal.Goal,
-		Due:             goal.DueDate,
+		Due:             goal.Due.Format(HTMLDateFormat),
 		Achieved:        goal.Achieved,
 		VisibleToPublic: goal.VisibleToPublic,
 	}
