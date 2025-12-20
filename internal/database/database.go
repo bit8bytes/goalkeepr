@@ -76,7 +76,7 @@ func Open(driver, path string) (*sql.DB, error) {
 
 	// SQLite pool settings
 	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(2)
+	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(5 * time.Minute)
 	db.SetConnMaxIdleTime(5 * time.Minute)
 
@@ -141,23 +141,5 @@ func Optimize(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("could not optimize database: %w", err)
 	}
-	return nil
-}
-
-func WithTx(db *sql.DB, fn func(*sql.Tx) error) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return fmt.Errorf("could not begin transaction: %w", err)
-	}
-	defer tx.Rollback()
-
-	if err := fn(tx); err != nil {
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("could not commit transaction: %w", err)
-	}
-
 	return nil
 }

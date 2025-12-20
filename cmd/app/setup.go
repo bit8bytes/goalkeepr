@@ -28,13 +28,6 @@ const (
 	HTMLDateFormat = "2006-01-02"
 )
 
-type config struct {
-	env  string
-	port int
-}
-
-type queries struct{}
-
 type services struct {
 	users    *users.Service
 	goals    *goals.Service

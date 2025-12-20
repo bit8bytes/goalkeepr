@@ -85,3 +85,22 @@ func (s *Service) DeleteByID(ctx context.Context, id int) error {
 
 	return nil
 }
+
+func (f *SignUpForm) Validate() {
+	f.Check(validator.NotBlank(f.Email), "email", "This field cannot be blank")
+	f.Check(validator.Matches(f.Email, validator.EmailRX), "email", "This field must be a valid email address")
+
+	f.Check(validator.NotBlank(f.Password), "password", "This field cannot be blank")
+	f.Check(validator.MinChars(f.Password, 8), "password", "This field must be at least 8 characters long")
+
+	f.Check(validator.NotBlank(f.RepeatPassword), "repeat_password", "This field cannot be blank")
+	f.Check(f.Password == f.RepeatPassword, "repeat_password", "Passwords do not match")
+}
+
+func (f *SignInForm) Validate() {
+	f.Check(validator.NotBlank(f.Email), "email", "This field cannot be blank")
+	f.Check(validator.Matches(f.Email, validator.EmailRX), "email", "This field must be a valid email address")
+
+	f.Check(validator.NotBlank(f.Password), "password", "This field cannot be blank")
+	f.Check(validator.MinChars(f.Password, 8), "password", "This field must be at least 8 characters long")
+}

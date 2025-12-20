@@ -50,9 +50,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 		RepeatPassword: sanitize.Password(rawRepeatPassword),
 	}
 
-	validateEmail(form, form.Email)
-	validatePassword(form, form.Password)
-	validateRepeatPassword(form, form.Password, form.RepeatPassword)
+	form.Validate()
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
@@ -124,8 +122,7 @@ func (app *app) postSignIn(w http.ResponseWriter, r *http.Request) {
 		Password: sanitize.Password(rawPassword),
 	}
 
-	validateEmail(form, form.Email)
-	validatePassword(form, form.Password)
+	form.Validate()
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)

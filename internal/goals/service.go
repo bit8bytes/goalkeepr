@@ -19,12 +19,10 @@ type Form struct {
 	validator.Validator `form:"-"`
 }
 
-func (f *Form) Validate() bool {
+func (f *Form) Validate() {
 	f.Check(validator.NotBlank(f.Goal), "goal", "Goal cannot be blank")
 	f.Check(validator.MaxChars(f.Goal, 500), "goal", "Goal cannot be more than 500 characters")
 	f.Check(validator.NotBlank(f.Due), "due", "Due date cannot be blank")
-
-	return f.Valid()
 }
 
 type Service struct {

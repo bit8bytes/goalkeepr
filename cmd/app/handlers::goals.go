@@ -104,7 +104,9 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 		VisibleToPublic: visibleToPublic,
 	}
 
-	if !form.Validate() {
+	form.Validate()
+
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, page.AddGoal, data)
@@ -174,7 +176,9 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 		Achieved:        achieved,
 	}
 
-	if !form.Validate() {
+	form.Validate()
+
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, page.EditGoal, data)

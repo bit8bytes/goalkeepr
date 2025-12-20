@@ -20,6 +20,10 @@ import (
 	"golang.org/x/time/rate"
 )
 
+type flash struct {
+	Content string
+}
+
 func (app *app) render(w http.ResponseWriter, r *http.Request, status int, page page.Page, data any) {
 	ts, ok := app.templateCache[page.Name()]
 	if !ok {
@@ -90,21 +94,6 @@ func (app *app) newTemplateData(r *http.Request) *templateData {
 type formValidator interface {
 	Check(ok bool, key, message string)
 	Valid() bool
-}
-
-func validateEmail(form formValidator, email string) {
-	form.Check(validator.NotBlank(email), "email", "This field cannot be blank")
-	form.Check(validator.Matches(email, validator.EmailRX), "email", "This field must be a valid email address")
-}
-
-func validatePassword(form formValidator, password string) {
-	form.Check(validator.NotBlank(password), "password", "This field cannot be blank")
-	form.Check(validator.MinChars(password, 8), "password", "This field must be at least 8 characters long")
-}
-
-func validateRepeatPassword(form formValidator, password, repeatPassword string) {
-	form.Check(validator.NotBlank(repeatPassword), "repeat_password", "This field cannot be blank")
-	form.Check(password == repeatPassword, "repeat_password", "Passwords do not match")
 }
 
 func validateBranding(f *branding.Form) {
