@@ -23,7 +23,13 @@ tasks:
     aliases: [dev]
     cmds:
       - echo 'Starting app with Reflex auto-reload...'
-      - reflex -s -r '\.(go|html|css|js)$' -- go run ./cmd/app -env=dev -database-driver=sqlite -database-path={{.DB_DSN}}
+      - reflex -s -r '\.(go|html|css|js)$' -- go run ./cmd/app -env=dev -database-driver=sqlite -database-dsn={{.DB_DSN}}
+
+  sqlc:
+    desc: Generate source code from SQL
+    aliases: [generate]
+    cmds:
+      - sqlc generate
 
   tw:
     desc: Run Tailwind CSS in watch mode

@@ -15,15 +15,14 @@
         <legend class="fieldset-legend">Add Goal</legend>
 
         <label for="goal" class="label">Goal</label>
-        <textarea
+        <input
           id="goal"
           name="goal"
+          value="{{ .Form.Goal }}"
           type="text"
-          class="textarea"
+          class="input"
           placeholder="My goal"
-        >
-{{ .Form.Goal }}</textarea
-        >
+        />
         {{ with .Form.Errors.goal }}
           <label class="label">
             <span class="label-text-alt text-error">{{ . }}</span>

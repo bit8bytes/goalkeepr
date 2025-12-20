@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"time"
 
 	"github.com/bit8bytes/goalkeepr/ui"
 	"github.com/bit8bytes/goalkeepr/ui/page"
@@ -40,8 +41,9 @@ func newTemplateCache() (map[string]*template.Template, error) {
 // defaultFunctions returns the standard template functions.
 func defaultFunctions() template.FuncMap {
 	return template.FuncMap{
-		"sub": func(a, b int) int { return a - b },
-		"mod": func(a, b int) int { return a % b },
+		"sub":      func(a, b int) int { return a - b },
+		"mod":      func(a, b int) int { return a % b },
+		"unixTime": func(timestamp int64) time.Time { return time.Unix(timestamp, 0) },
 	}
 }
 

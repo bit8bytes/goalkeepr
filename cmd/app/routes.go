@@ -10,7 +10,7 @@ func (app *app) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", app.getNotFound)
-	mux.Handle("/static/", app.cache(ui.ServeStaticFiles()))
+	mux.Handle("/static/", ui.ServeStaticFiles())
 
 	mux.HandleFunc("/{$}", app.getLanding)
 	mux.HandleFunc("/privacy", app.getPrivacy)

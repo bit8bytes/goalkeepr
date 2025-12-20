@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/bit8bytes/goalkeepr/internal/branding"
-	"github.com/bit8bytes/goalkeepr/internal/goals"
+	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 	"github.com/bit8bytes/toolbox/validator"
 	"golang.org/x/time/rate"
@@ -78,7 +78,7 @@ func (app *app) writeJSON(w http.ResponseWriter, status int, data map[string]any
 }
 
 func (app *app) newTemplateData(r *http.Request) *templateData {
-	userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
+	userID := app.sessionManager.GetInt(r.Context(), string(users.Key))
 	return &templateData{
 		Metadata: metadata{
 			Year: time.Now().Year(),
@@ -105,21 +105,6 @@ func validatePassword(form formValidator, password string) {
 func validateRepeatPassword(form formValidator, password, repeatPassword string) {
 	form.Check(validator.NotBlank(repeatPassword), "repeat_password", "This field cannot be blank")
 	form.Check(password == repeatPassword, "repeat_password", "Passwords do not match")
-}
-
-func validateAddGoal(f *goals.Form) {
-	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
-	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
-	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
-	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
-}
-
-func validateEditGoal(f *goals.Form) {
-	f.Check(validator.NotBlank(f.Goal), "goal", "This field cannot be blank")
-	f.Check(validator.MaxChars(f.Goal, 1024), "goal", "Goal cannot exceed 1024 characters")
-	f.Check(validator.NotBlank(f.Due), "due", "This field cannot be blank")
-	f.Check(validator.PermittedValue(f.Achieved, true, false), "achieved", "This field can only be set or unset")
-	f.Check(validator.PermittedValue(f.VisibleToPublic, true, false), "visible", "This field can only be set or unset")
 }
 
 func validateBranding(f *branding.Form) {
@@ -228,7 +213,9 @@ func (l *limiters) get(ip string) *rate.Limiter {
 
 	limiter, exists := l.m[ip]
 	if !exists {
-		limiter = rate.NewLimiter(rate.Every(time.Minute/5), 5)
+		// Allow 60 requests per minute (1 request per second with burst of 10)
+		limiter = rate.NewLimiter(rate.Every(time.Second), 10)
+
 		l.m[ip] = limiter
 	}
 

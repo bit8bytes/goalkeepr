@@ -3,10 +3,12 @@ module github.com/bit8bytes/goalkeepr
 go 1.25.3
 
 require (
+	github.com/alexedwards/scs/sqlite3store v0.0.0-20251002162104-209de6e426de
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/bit8bytes/toolbox v0.7.6
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/stretchr/testify v1.11.1
+	go.opentelemetry.io/otel/trace v1.37.0
 	golang.org/x/crypto v0.46.0
 	golang.org/x/time v0.14.0
 	modernc.org/sqlite v1.40.1
@@ -22,6 +24,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
+	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/sync v0.16.0 // indirect

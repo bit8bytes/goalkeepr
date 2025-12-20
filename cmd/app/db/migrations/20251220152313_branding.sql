@@ -5,9 +5,9 @@ CREATE TABLE branding (
     user_id INTEGER NOT NULL UNIQUE,
     title TEXT,
     description TEXT,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE INDEX idx_branding_user_id ON branding(user_id);
 -- +goose StatementEnd

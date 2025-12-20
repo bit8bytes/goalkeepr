@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
@@ -18,7 +19,7 @@ func getUserID(r *http.Request) int {
 
 func (app *app) withAuth(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID := app.sessionManager.GetInt(r.Context(), UserIDSessionKey)
+		userID := app.sessionManager.GetInt(r.Context(), string(users.Key))
 		if userID == 0 {
 			http.Redirect(w, r, "/signin", http.StatusSeeOther)
 			return
@@ -44,17 +45,6 @@ func (app *app) withRate(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (app *app) cache(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.config.env == "dev" {
-			w.Header().Set("Cache-Control", "no-cache")
-		} else {
-			w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
-		}
 		next.ServeHTTP(w, r)
 	})
 }

@@ -23,34 +23,39 @@ Simplified formula: 10 ops/second _ 100 users/day = 1000 (ops _ users)/second =>
 erDiagram
     users {
         INTEGER id PK
-        TEXT email
+        TEXT email "UNIQUE"
         TEXT password_hash
-        DATETIME created_at
-        DATETIME updated_at
+        INTEGER locked_until "NULLABLE"
+        INTEGER created_at "Unix epoch"
+        INTEGER updated_at "Unix epoch"
     }
 
     branding {
         INTEGER id PK
-        INTEGER user_id FK
-        TEXT title
-        TEXT description
+        INTEGER user_id FK "UNIQUE"
+        TEXT title "NULLABLE"
+        TEXT description "NULLABLE"
     }
 
     goals {
         INTEGER id PK
         INTEGER user_id FK
-        TEXT goal
-        DATETIME due
-        BOOL visible_to_public
-        BOOL achieved
-        DATETIME created_at
-        DATETIME updated_at
+        TEXT goal "NULLABLE"
+        INTEGER due "Unix epoch, NULLABLE"
+        INTEGER visible_to_public "Default 0"
+        INTEGER achieved "Default 0"
     }
 
     share {
         INTEGER id PK
         INTEGER user_id FK
-        TEXT public_id
+        TEXT public_id "UNIQUE"
+    }
+
+    sessions {
+        TEXT token PK
+        BLOB data
+        REAL expiry
     }
 
     users ||--o{ goals : "has (CASCADE)"

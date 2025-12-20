@@ -26,8 +26,7 @@
               preload="mouseover"
               class="timeline-start timeline-box"
             >
-              {{ $goal.Due.Format "2006" }}:
-              {{ $goal.Goal }}
+              {{ $goal.Year }}: {{ $goal.Goal }}
             </a>
             {{ if ne $index 0 }}
               <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
@@ -69,7 +68,7 @@
               href="/goals/{{ $goal.ID }}"
               preload="mouseover"
               class="timeline-end timeline-box"
-              >{{ $goal.Due.Format "2006" }}: {{ $goal.Goal }}</a
+              >{{ $goal.Year }}: {{ $goal.Goal }}</a
             >
 
             <hr

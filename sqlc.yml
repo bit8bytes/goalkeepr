@@ -1,0 +1,30 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "cmd/app/db/queries/users.sql"
+    schema: "cmd/app/db/migrations/*user*.sql"
+    gen:
+      go:
+        package: "users"
+        out: "internal/users"
+  - engine: "sqlite"
+    queries: "cmd/app/db/queries/goals.sql"
+    schema: "cmd/app/db/migrations/*goal*.sql"
+    gen:
+      go:
+        package: "goals"
+        out: "internal/goals"
+  - engine: "sqlite"
+    queries: "cmd/app/db/queries/branding.sql"
+    schema: "cmd/app/db/migrations/*branding*.sql"
+    gen:
+      go:
+        package: "branding"
+        out: "internal/branding"
+  - engine: "sqlite"
+    queries: "cmd/app/db/queries/share.sql"
+    schema: "cmd/app/db/migrations/*share*.sql"
+    gen:
+      go:
+        package: "share"
+        out: "internal/share"

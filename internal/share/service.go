@@ -9,24 +9,17 @@ import (
 )
 
 type Service struct {
-	db *sql.DB
+	queries *Queries
 }
 
-type Share struct {
-	ID       int    `db:"id"`
-	UserID   int    `db:"user_id"`
-	PublicID string `db:"public_id"`
-}
-
-func New(db *sql.DB) *Service {
+func NewService(db *sql.DB) *Service {
 	return &Service{
-		db: db,
+		queries: New(db),
 	}
 }
 
 func (s *Service) Create(ctx context.Context, userID int) (*Share, error) {
-	var count int
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM share WHERE user_id = ?", userID).Scan(&count)
+	count, err := s.queries.CountByUserID(ctx, int64(userID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to count existing shares: %w", err)
 	}
@@ -40,7 +33,10 @@ func (s *Service) Create(ctx context.Context, userID int) (*Share, error) {
 		return nil, fmt.Errorf("failed to generate public ID: %w", err)
 	}
 
-	result, err := s.db.ExecContext(ctx, "INSERT INTO share (user_id, public_id) VALUES (?, ?)", userID, publicID)
+	result, err := s.queries.Create(ctx, CreateParams{
+		UserID:   int64(userID),
+		PublicID: publicID,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create share: %w", err)
 	}
@@ -51,14 +47,14 @@ func (s *Service) Create(ctx context.Context, userID int) (*Share, error) {
 	}
 
 	return &Share{
-		ID:       int(id),
-		UserID:   userID,
+		ID:       id,
+		UserID:   int64(userID),
 		PublicID: publicID,
 	}, nil
 }
 
 func (s *Service) Delete(ctx context.Context, id int) error {
-	result, err := s.db.ExecContext(ctx, "DELETE FROM share WHERE id = ?", id)
+	result, err := s.queries.Delete(ctx, int64(id))
 	if err != nil {
 		return fmt.Errorf("failed to delete share: %w", err)
 	}
@@ -76,36 +72,19 @@ func (s *Service) Delete(ctx context.Context, id int) error {
 }
 
 func (s *Service) GetAll(ctx context.Context, userID int) ([]Share, error) {
-	rows, err := s.db.QueryContext(ctx, "SELECT id, user_id, public_id FROM share WHERE user_id = ?", userID)
+	shares, err := s.queries.GetAll(ctx, int64(userID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to query shares: %w", err)
 	}
-	defer rows.Close()
-
-	var shares []Share
-	for rows.Next() {
-		var share Share
-		err := rows.Scan(&share.ID, &share.UserID, &share.PublicID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan share: %w", err)
-		}
-		shares = append(shares, share)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows iteration error: %w", err)
-	}
-
 	return shares, nil
 }
 
 func (s *Service) GetUserIDByPublicID(ctx context.Context, publicID string) (int, error) {
-	var userID int
-	err := s.db.QueryRowContext(ctx, "SELECT user_id FROM share WHERE public_id = ?", publicID).Scan(&userID)
+	userID, err := s.queries.GetUserIDByPublicID(ctx, publicID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get user ID by public ID: %w", err)
 	}
-	return userID, nil
+	return int(userID), nil
 }
 
 func generatePublicID() (string, error) {

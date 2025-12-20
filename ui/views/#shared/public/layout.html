@@ -1,6 +1,8 @@
 {{ define "#shared/public/layout.html" }}{{ template "base" . }}{{ end }}
 {{ define "body" }}
   {{ template "header" . }}
-  <main class="flex-1">{{ template "main" . }}</main>
+    <main
+    class="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto"
+  >{{ template "main" . }}</main>
   {{ template "footer" . }}
 {{ end }}

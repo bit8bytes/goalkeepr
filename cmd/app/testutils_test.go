@@ -3,63 +3,31 @@ package main
 import (
 	"bytes"
 	"io"
-	"log/slog"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"testing"
-	"time"
 
-	"github.com/alexedwards/scs/v2"
-	"github.com/bit8bytes/goalkeepr/internal/branding"
-	"github.com/bit8bytes/goalkeepr/internal/data"
-	"github.com/bit8bytes/goalkeepr/internal/goals"
-	"github.com/bit8bytes/goalkeepr/internal/share"
-	"github.com/bit8bytes/goalkeepr/internal/users"
+	"github.com/bit8bytes/goalkeepr/internal/flags"
 )
 
 func newTestApplication(tb testing.TB) *app {
-	var cfg config
+	cfg := &flags.Options{
+		Env:  flags.SetEnv("prod"),
+		Port: 8080,
+		Database: struct {
+			Driver string
+			Dsn    string
+		}{Driver: "sqlite", Dsn: ":memory:"},
+	}
 
-	cfg.db.Driver = "sqlite"
-	cfg.db.Path = ":memory:"
-
-	dbP, err := data.New(cfg.db.Driver, cfg.db.Path)
+	app, err := newApp(cfg)
 	if err != nil {
 		tb.Fatal(err)
 	}
 
-	if _, err := dbP.AutoMigrate(); err != nil {
-		tb.Fatal(err)
-	}
-
-	templateCache, err := newTemplateCache()
-	if err != nil {
-		tb.Fatal(err)
-	}
-
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 24 * time.Hour
-	sessionManager.Cookie.Name = GoalkeeprCookieName
-
-	modules := &modules{
-		users:    users.New(dbP.DB),
-		goals:    goals.New(dbP.DB),
-		branding: branding.New(dbP.DB),
-		share:    share.New(dbP.DB),
-	}
-
-	limiters := newLimiters()
-
-	return &app{
-		config:         cfg,
-		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
-		templateCache:  templateCache,
-		sessionManager: sessionManager,
-		modules:        modules,
-		limiters:       limiters,
-	}
+	return app
 }
 
 // Define a custom testServer type which embeds a httptest.Server instance.
