@@ -11,7 +11,7 @@ import (
 
 // Returns the user id from context. If not found it will return 0
 func getUserID(r *http.Request) int {
-	if id, ok := r.Context().Value(UserIdKey).(int); ok {
+	if id, ok := r.Context().Value(users.Key).(int); ok {
 		return id
 	}
 	return 0
@@ -25,7 +25,7 @@ func (app *app) withAuth(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), UserIdKey, userID)
+		ctx := context.WithValue(r.Context(), users.Key, userID)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
