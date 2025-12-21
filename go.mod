@@ -1,6 +1,6 @@
 module github.com/bit8bytes/goalkeepr
 
-go 1.25.3
+go 1.25.5
 
 require (
 	github.com/alexedwards/scs/sqlite3store v0.0.0-20251002162104-209de6e426de

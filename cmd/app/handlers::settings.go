@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/bit8bytes/goalkeepr/internal/branding"
@@ -77,7 +78,11 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete session token & client cookie
-	app.sessionManager.Destroy(r.Context())
+	if err := app.sessionManager.Destroy(r.Context()); err != nil {
+		app.logger.WarnContext(r.Context(), "error destroying session", slog.String("msg", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	http.SetCookie(w, &http.Cookie{Name: GoalkeeprCookie, Value: "", Path: "/", MaxAge: -1})
 
 	if r.Header.Get("HX-Request") == "true" {

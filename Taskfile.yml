@@ -36,6 +36,13 @@ tasks:
     cmds:
       - tailwindcss -i ./ui/static/css/index.css -o ./ui/static/dist/index.css --watch
 
+  sec:
+    desc: gosec analyzes Go source code to look for common programming mistakes that can lead to security problems.
+    aliases: [scan]
+    cmds:
+      - gosec -exclude-dir=internal/database/gen ./...
+      - govulncheck ./...
+
   # ==================================================================================== #
   # QUALITY CONTROL
   # ==================================================================================== #
