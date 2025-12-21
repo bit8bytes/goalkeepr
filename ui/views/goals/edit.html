@@ -117,7 +117,7 @@
       {{ if .Data.SuccessCriteria }}
         <ul class="space-y-2 mb-3">
           {{ range .Data.SuccessCriteria }}
-            <li class="flex gap-2 items-center bg-white p-3 rounded shadow">
+            <li class="flex gap-2 items-center p-3 bg-base-100 rounded-lg border border-base-300">
               <input
                 type="checkbox"
                 name="criteria_{{ .ID }}"
