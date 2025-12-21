@@ -11,7 +11,7 @@ import (
 )
 
 func (app *app) getSignUp(w http.ResponseWriter, r *http.Request) {
-	userID := getUserID(r)
+	userID := app.sessionManager.GetInt(r.Context(), string(users.Key))
 	if userID != 0 {
 		http.Redirect(w, r, "/goals", http.StatusSeeOther)
 		return
@@ -85,7 +85,7 @@ func (app *app) postSignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) getSignIn(w http.ResponseWriter, r *http.Request) {
-	userID := getUserID(r)
+	userID := app.sessionManager.GetInt(r.Context(), string(users.Key))
 	if userID != 0 {
 		http.Redirect(w, r, "/goals", http.StatusSeeOther)
 		return

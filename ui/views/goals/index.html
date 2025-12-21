@@ -24,7 +24,12 @@
             <a
               href="/goals/{{ $goal.ID }}"
               preload="mouseover"
-              class="timeline-start timeline-box"
+              class="timeline-start timeline-box 
+                {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
+                {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
+              {{ if gt $goal.TotalCriteriaCount 0 }}
+                data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+              {{ end }}
             >
               <div class="font-bold">{{ $goal.Goal }}</div>
               <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
@@ -68,7 +73,12 @@
             <a
               href="/goals/{{ $goal.ID }}"
               preload="mouseover"
-              class="timeline-end timeline-box"
+              class="timeline-end timeline-box 
+                {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
+                {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
+              {{ if gt $goal.TotalCriteriaCount 0 }}
+                data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+              {{ end }}
             >
               <div class="font-bold">{{ $goal.Goal }}</div>
               <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
@@ -88,7 +98,8 @@
           <a
             href="/goals/add/"
             preload="mouseover"
-            class="btn btn-circle btn-ghost w-8 h-8 opacity-50"
+            class="tooltip tooltip-bottom btn btn-circle btn-ghost w-8 h-8 opacity-50"
+            data-tip="Add Goal"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

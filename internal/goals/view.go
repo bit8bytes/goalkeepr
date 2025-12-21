@@ -3,13 +3,15 @@ package goals
 import "time"
 
 type View struct {
-	ID              int64
-	UserID          int64
-	Goal            string
-	Year            string
-	Due             time.Time
-	VisibleToPublic bool
-	Achieved        bool
+	ID                     int64
+	UserID                 int64
+	Goal                   string
+	Year                   string
+	Due                    time.Time
+	VisibleToPublic        bool
+	Achieved               bool
+	CompletedCriteriaCount int
+	TotalCriteriaCount     int
 }
 
 func (g *Goal) ToView() View {
