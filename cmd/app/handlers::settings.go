@@ -20,25 +20,19 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userView := user.ToView()
+
 	b, err := app.services.branding.GetByUserID(r.Context(), userID)
 	if err != nil && err != sql.ErrNoRows {
 		app.renderError(w, r, err, "Error loading branding settings.")
 		return
 	}
 
-	brandingForm := branding.Form{}
-	if b != nil {
-		if b.Title.Valid {
-			brandingForm.Title = b.Title.String
-		}
-		if b.Description.Valid {
-			brandingForm.Description = b.Description.String
-		}
-	}
+	brandingView := b.ToView()
 
 	forms := map[string]any{
-		"Account":  users.UpdateUserForm{Email: user.Email},
-		"Branding": brandingForm,
+		"Account":  users.UpdateUserForm{Email: userView.Email},
+		"Branding": brandingView,
 	}
 
 	data := app.newTemplateData(r)

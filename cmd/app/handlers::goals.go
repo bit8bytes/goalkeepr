@@ -9,72 +9,32 @@ import (
 
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
+	"github.com/bit8bytes/goalkeepr/internal/share"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
-// GoalView is a template-friendly representation of a Goal
-type GoalView struct {
-	ID              int64
-	UserID          int64
-	Goal            string
-	Due             time.Time
-	VisibleToPublic bool
-	Achieved        bool
-}
-
-func toGoalViews(sqlcGoals []goals.Goal) []GoalView {
-	views := make([]GoalView, 0, len(sqlcGoals))
-	for _, g := range sqlcGoals {
-		view := GoalView{
-			ID:     g.ID,
-			UserID: g.UserID,
-		}
-		if g.Goal.Valid {
-			view.Goal = g.Goal.String
-		}
-		if g.Due.Valid {
-			view.Due = time.Unix(g.Due.Int64, 0)
-		}
-		if g.VisibleToPublic.Valid {
-			view.VisibleToPublic = g.VisibleToPublic.Int64 == 1
-		}
-		if g.Achieved.Valid {
-			view.Achieved = g.Achieved.Int64 == 1
-		}
-		views = append(views, view)
-	}
-	return views
-}
-
 func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
-	goals, err := app.services.goals.GetAll(r.Context(), getUserID(r))
+	goalList, err := app.services.goals.GetAll(r.Context(), getUserID(r))
 	if err != nil {
 		app.renderError(w, r, err, "Error loading your goals.")
 		return
 	}
 
-	b, err := app.services.branding.GetByUserID(r.Context(), getUserID(r))
+	goalViews := make([]goals.View, len(goalList))
+	for i, goal := range goalList {
+		goalViews[i] = goal.ToView()
+	}
+
+	branding, err := app.services.branding.GetByUserID(r.Context(), getUserID(r))
 	if err != nil && err != sql.ErrNoRows {
 		app.renderError(w, r, err, "Error loading your branding settings.")
 		return
 	}
 
-	brandingData := map[string]string{
-		"Title":       "",
-		"Description": "",
-	}
-	if b != nil {
-		if b.Title.Valid {
-			brandingData["Title"] = b.Title.String
-		}
-		if b.Description.Valid {
-			brandingData["Description"] = b.Description.String
-		}
-	}
-
 	forms := map[string]any{
-		"Goals":    goals,
-		"Branding": brandingData,
+		"Goals":    goalViews,
+		"Branding": branding.ToView(),
+		"Now":      time.Now(),
 	}
 
 	data := app.newTemplateData(r)
@@ -139,12 +99,14 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	goalView := goal.ToView()
+
 	editGoalForm := &goals.Form{
-		ID:              int(goal.ID),
-		Goal:            goal.Goal,
-		Due:             goal.Due.Format(HTMLDateFormat),
-		Achieved:        goal.Achieved,
-		VisibleToPublic: goal.VisibleToPublic,
+		ID:              int(goalView.ID),
+		Goal:            goalView.Goal,
+		Due:             goalView.Due.Format(HTMLDateFormat),
+		Achieved:        goalView.Achieved,
+		VisibleToPublic: goalView.VisibleToPublic,
 	}
 
 	data.Form = editGoalForm
@@ -229,9 +191,14 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	shareViews := make([]share.View, len(shareLinks))
+	for i, s := range shareLinks {
+		shareViews[i] = s.ToView()
+	}
+
 	data := app.newTemplateData(r)
 	data.Data = map[string]any{
-		"Links": shareLinks,
+		"Links": shareViews,
 		"Host":  r.Host,
 	}
 
@@ -239,11 +206,13 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
-	share, err := app.services.share.Create(r.Context(), getUserID(r))
+	shareModel, err := app.services.share.Create(r.Context(), getUserID(r))
 	if err != nil {
 		app.renderError(w, r, err, "Error creating share link.")
 		return
 	}
+
+	shareView := shareModel.ToView()
 
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Trigger", "shareCreated")
@@ -252,7 +221,7 @@ func (app *app) postCreateShare(w http.ResponseWriter, r *http.Request) {
 			<input type="text" value="%s/s/%s" readonly class="input flex-1 bg-base-200" onclick="this.select()">
 			<button class="btn" onclick="navigator.clipboard.writeText('%s/s/%s')">Copy</button>
 			<button class="btn btn-error" hx-delete="/goals/share/%d" hx-target="closest .flex" hx-swap="outerHTML" hx-confirm="Delete this share link?">Delete</button>
-		</div>`, r.Host, share.PublicID, r.Host, share.PublicID, share.ID)
+		</div>`, r.Host, shareView.PublicID, r.Host, shareView.PublicID, shareView.ID)
 		return
 	}
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 	"github.com/bit8bytes/toolbox/vcs"
 )
@@ -43,10 +44,15 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goals, err := app.services.goals.GetAllShared(r.Context(), userID)
+	goalList, err := app.services.goals.GetAllShared(r.Context(), userID)
 	if err != nil {
 		app.renderError(w, r, err, "Error loading shared goals.")
 		return
+	}
+
+	goalViews := make([]goals.View, len(goalList))
+	for i, goal := range goalList {
+		goalViews[i] = goal.ToView()
 	}
 
 	b, err := app.services.branding.GetByUserID(r.Context(), userID)
@@ -55,23 +61,10 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	brandingData := map[string]string{
-		"Title":       "",
-		"Description": "",
-	}
-	if b != nil {
-		if b.Title.Valid {
-			brandingData["Title"] = b.Title.String
-		}
-		if b.Description.Valid {
-			brandingData["Description"] = b.Description.String
-		}
-	}
-
 	data := app.newTemplateData(r)
 	data.Data = map[string]any{
-		"Goals":    goals,
-		"Branding": brandingData,
+		"Goals":    goalViews,
+		"Branding": b.ToView(),
 	}
 
 	app.render(w, r, http.StatusOK, page.Share, data)

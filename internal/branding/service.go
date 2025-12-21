@@ -23,12 +23,12 @@ func NewService(db *sql.DB) *Service {
 	}
 }
 
-func (s *Service) GetByUserID(ctx context.Context, userID int) (*Branding, error) {
+func (s *Service) GetByUserID(ctx context.Context, userID int) (Branding, error) {
 	branding, err := s.queries.GetByUserID(ctx, int64(userID))
 	if err != nil {
-		return nil, err
+		return Branding{}, err
 	}
-	return &branding, nil
+	return branding, nil
 }
 
 func (s *Service) CreateOrUpdate(ctx context.Context, userID int, title, description string) error {

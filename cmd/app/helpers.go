@@ -13,10 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bit8bytes/goalkeepr/internal/branding"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 	"github.com/bit8bytes/goalkeepr/ui/page"
-	"github.com/bit8bytes/toolbox/validator"
 	"golang.org/x/time/rate"
 )
 
@@ -82,23 +80,13 @@ func (app *app) writeJSON(w http.ResponseWriter, status int, data map[string]any
 }
 
 func (app *app) newTemplateData(r *http.Request) *templateData {
-	userID := app.sessionManager.GetInt(r.Context(), string(users.Key))
+	userID := app.sessionManager.GetInt64(r.Context(), string(users.Key))
 	return &templateData{
 		Metadata: metadata{
 			Year: time.Now().Year(),
 		},
 		IsAuthenticated: userID != 0,
 	}
-}
-
-type formValidator interface {
-	Check(ok bool, key, message string)
-	Valid() bool
-}
-
-func validateBranding(f *branding.Form) {
-	f.Check(validator.MaxChars(f.Title, 512), "branding_title", "Title cannot exceed 512 characters")
-	f.Check(validator.MaxChars(f.Description, 2048), "branding_description", "Description cannot exceed 2048 characters")
 }
 
 type trace struct{}

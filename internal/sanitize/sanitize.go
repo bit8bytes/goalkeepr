@@ -1,7 +1,6 @@
 package sanitize
 
 import (
-	"html"
 	"strings"
 )
 
@@ -16,8 +15,7 @@ func Password(pw string) string {
 }
 
 func Text(t string) string {
-	t = strings.TrimSpace(t)
-	return html.EscapeString(t)
+	return strings.TrimSpace(t)
 }
 
 func Date(d string) string {

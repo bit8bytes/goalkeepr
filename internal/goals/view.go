@@ -2,8 +2,7 @@ package goals
 
 import "time"
 
-// GoalView is the render-ready version of Goal
-type GoalView struct {
+type View struct {
 	ID              int64
 	UserID          int64
 	Goal            string
@@ -13,9 +12,8 @@ type GoalView struct {
 	Achieved        bool
 }
 
-// ToView converts Goal to GoalView
-func (g *Goal) ToView() GoalView {
-	view := GoalView{
+func (g *Goal) ToView() View {
+	view := View{
 		ID:              g.ID,
 		UserID:          g.UserID,
 		Goal:            g.Goal.String,

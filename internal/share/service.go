@@ -76,6 +76,7 @@ func (s *Service) GetAll(ctx context.Context, userID int) ([]Share, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to query shares: %w", err)
 	}
+
 	return shares, nil
 }
 
@@ -87,6 +88,7 @@ func (s *Service) GetUserIDByPublicID(ctx context.Context, publicID string) (int
 	return int(userID), nil
 }
 
+// generatePublicID generates a crypto random string. On error, it returns an emtry string.
 func generatePublicID() (string, error) {
 	bytes := make([]byte, 4)
 	_, err := rand.Read(bytes)

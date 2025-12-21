@@ -68,30 +68,25 @@ func (s *Service) Add(ctx context.Context, userID int, form *Form) error {
 	return err
 }
 
-func (s *Service) GetAll(ctx context.Context, userID int) ([]GoalView, error) {
+func (s *Service) GetAll(ctx context.Context, userID int) ([]Goal, error) {
 	goals, err := s.queries.GetAll(ctx, int64(userID))
 	if err != nil {
 		return nil, err
 	}
 
-	views := make([]GoalView, len(goals))
-	for i, goal := range goals {
-		views[i] = goal.ToView()
-	}
-
-	return views, nil
+	return goals, nil
 }
 
-func (s *Service) Get(ctx context.Context, goalID, userID int) (GoalView, error) {
+func (s *Service) Get(ctx context.Context, goalID, userID int) (Goal, error) {
 	goal, err := s.queries.Get(ctx, GetParams{
 		ID:     int64(goalID),
 		UserID: int64(userID),
 	})
 	if err != nil {
-		return GoalView{}, err
+		return Goal{}, err
 	}
 
-	return goal.ToView(), nil
+	return goal, nil
 }
 
 func (s *Service) Update(ctx context.Context, goalID, userID int, form *Form) (int, error) {
@@ -158,16 +153,11 @@ func (s *Service) Delete(ctx context.Context, goalID, userID int) (int, error) {
 	return int(rowsAffected), nil
 }
 
-func (s *Service) GetAllShared(ctx context.Context, userID int) ([]GoalView, error) {
+func (s *Service) GetAllShared(ctx context.Context, userID int) ([]Goal, error) {
 	goals, err := s.queries.GetAllShared(ctx, int64(userID))
 	if err != nil {
 		return nil, err
 	}
 
-	views := make([]GoalView, len(goals))
-	for i, goal := range goals {
-		views[i] = goal.ToView()
-	}
-
-	return views, nil
+	return goals, nil
 }
