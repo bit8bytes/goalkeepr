@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -21,19 +20,15 @@ func (app *app) getSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userView := user.ToView()
-
-	b, err := app.services.branding.GetByUserID(r.Context(), userID)
+	branding, err := app.services.branding.GetByUserID(r.Context(), userID)
 	if err != nil && err != sql.ErrNoRows {
 		app.renderError(w, r, err, "Error loading branding settings.")
 		return
 	}
 
-	brandingView := b.ToView()
-
 	forms := map[string]any{
-		"Account":  users.UpdateUserForm{Email: userView.Email},
-		"Branding": brandingView,
+		"Account":  users.UpdateUserForm{Email: user.ToView().Email},
+		"Branding": branding.ToView(),
 	}
 
 	data := app.newTemplateData(r)
@@ -48,17 +43,15 @@ func (app *app) postBranding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawTitle := r.PostForm.Get("title")
-	rawDescription := r.PostForm.Get("description")
-
 	form := &branding.Form{
-		Title:       sanitize.Text(rawTitle),
-		Description: sanitize.Text(rawDescription),
+		Title:       sanitize.Text(r.PostForm.Get("title")),
+		Description: sanitize.Text(r.PostForm.Get("description")),
 	}
 
 	if !form.Valid() {
-		// Todo: better error handling for form but this requires the users email.
-		app.renderError(w, r, fmt.Errorf("title or description to long"), "Title or description to long.")
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, page.Settings, data)
 		return
 	}
 
@@ -79,12 +72,12 @@ func (app *app) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// Delete session token & client cookie
 	if err := app.sessionManager.Destroy(r.Context()); err != nil {
+		// Continue because the user already has been deleted
 		app.logger.WarnContext(r.Context(), "error destroying session", slog.String("msg", err.Error()))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: GoalkeeprCookie, Value: "", Path: "/", MaxAge: -1})
 
+	// TODO: Use internal/htmx helper library
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Redirect", "/signup")
 		w.WriteHeader(http.StatusOK)

@@ -10,7 +10,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
 	"github.com/bit8bytes/goalkeepr/internal/share"
-	"github.com/bit8bytes/goalkeepr/internal/success_criteria"
+	successCriteria "github.com/bit8bytes/goalkeepr/internal/success_criteria"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
@@ -21,6 +21,7 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Return goals with success criteria in one criteria
 	goalViews := make([]goals.View, len(goalList))
 	for i, goal := range goalList {
 		goalView := goal.ToView()
@@ -51,10 +52,21 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Calculate default due date for new goals (3 months after latest goal)
+	defaultDue := time.Now()
+	if len(goalList) > 0 {
+		latestGoal := goalList[len(goalList)-1]
+		if latestGoal.Due.Valid {
+			latestDueTime := time.Unix(latestGoal.Due.Int64, 0)
+			defaultDue = latestDueTime.AddDate(0, 3, 0)
+		}
+	}
+
 	forms := map[string]any{
-		"Goals":    goalViews,
-		"Branding": branding.ToView(),
-		"Now":      time.Now(),
+		"Goals":      goalViews,
+		"Branding":   branding.ToView(),
+		"Now":        time.Now(),
+		"DefaultDue": defaultDue.Format(HTMLDateFormat),
 	}
 
 	data := app.newTemplateData(r)
@@ -64,7 +76,14 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 
 func (app *app) getAddGoal(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	data.Form = goals.Form{Due: time.Now().Format(HTMLDateFormat)}
+
+	// Use default_due from query param if provided, otherwise use today
+	defaultDue := r.URL.Query().Get("default_due")
+	if defaultDue == "" {
+		defaultDue = time.Now().Format(HTMLDateFormat)
+	}
+
+	data.Form = goals.Form{Due: defaultDue}
 	app.render(w, r, http.StatusOK, page.AddGoal, data)
 }
 
@@ -74,16 +93,11 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawGoal := r.PostForm.Get("goal")
-	rawDue := r.PostForm.Get("due")
-	visibleToPublic := r.PostForm.Get("visible") == "on"
-
 	form := &goals.Form{
-		Goal:            sanitize.Text(rawGoal),
-		Due:             sanitize.Date(rawDue),
-		VisibleToPublic: visibleToPublic,
+		Goal:            sanitize.Text(r.PostForm.Get("goal")),
+		Due:             sanitize.Date(r.PostForm.Get("due")),
+		VisibleToPublic: r.PostForm.Get("visible") == "on",
 	}
-
 	form.Validate()
 
 	if !form.Valid() {
@@ -138,7 +152,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	criteriaViews := make([]success_criteria.View, len(criteria))
+	criteriaViews := make([]successCriteria.View, len(criteria))
 	for i, c := range criteria {
 		criteriaViews[i] = c.ToView()
 	}
@@ -153,6 +167,12 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		app.renderError(w, r, err, "Error processing form data.")
 		return
@@ -162,11 +182,6 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	rawDue := r.PostForm.Get("due")
 	visibleToPublic := r.PostForm.Get("visible") == "on"
 	achieved := r.PostForm.Get("achieved") == "on"
-	goalID, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		app.renderError(w, r, err, "Invalid goal ID.")
-		return
-	}
 
 	form := &goals.Form{
 		ID:              goalID,
@@ -175,7 +190,6 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 		VisibleToPublic: visibleToPublic,
 		Achieved:        achieved,
 	}
-
 	form.Validate()
 
 	if !form.Valid() {
@@ -213,6 +227,7 @@ func (app *app) deleteEditGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Refactor and use internal/htmx
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Redirect", "/goals")
 		w.WriteHeader(http.StatusOK)
@@ -286,8 +301,6 @@ func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
 }
 
-// Success Criteria Handlers
-
 func (app *app) postAddSuccessCriteria(w http.ResponseWriter, r *http.Request) {
 	goalID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -311,7 +324,7 @@ func (app *app) postAddSuccessCriteria(w http.ResponseWriter, r *http.Request) {
 		position, _ = strconv.Atoi(rawPosition)
 	}
 
-	form := &success_criteria.Form{
+	form := &successCriteria.Form{
 		GoalID:      goalID,
 		Description: sanitize.Text(rawDescription),
 		Position:    position,
@@ -385,5 +398,72 @@ func (app *app) deleteSuccessCriteria(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
+}
+
+func (app *app) postUpdateSuccessCriteria(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		app.renderError(w, r, err, "Error processing form data.")
+		return
+	}
+
+	userID := getUserID(r)
+
+	// Process checkboxes for existing criteria
+	criteria, err := app.services.successCriteria.GetAllByGoal(r.Context(), goalID, userID)
+	if err != nil && err != sql.ErrNoRows {
+		app.renderError(w, r, err, "Error loading success criteria.")
+		return
+	}
+
+	for _, c := range criteria {
+		criteriaIDStr := strconv.Itoa(int(c.ID))
+
+		// Check if this criterion should be deleted
+		if r.PostForm.Get(fmt.Sprintf("delete_%s", criteriaIDStr)) == "1" {
+			if _, err := app.services.successCriteria.Delete(r.Context(), int(c.ID), userID); err != nil {
+				app.renderError(w, r, err, "Error deleting success criteria.")
+				return
+			}
+			continue
+		}
+
+		// Check if completion status changed
+		isChecked := r.PostForm.Get(fmt.Sprintf("criteria_%s", criteriaIDStr)) == "on"
+		wasCompleted := c.Completed.Valid && c.Completed.Int64 == 1
+
+		if isChecked != wasCompleted {
+			if _, err := app.services.successCriteria.Toggle(r.Context(), int(c.ID), userID); err != nil {
+				app.renderError(w, r, err, "Error updating success criteria.")
+				return
+			}
+		}
+	}
+
+	// Add new criterion if provided
+	newCriterion := sanitize.Text(r.PostForm.Get("new_criterion"))
+	if newCriterion != "" {
+		form := &successCriteria.Form{
+			GoalID:      goalID,
+			Description: newCriterion,
+			Position:    len(criteria),
+		}
+		form.Validate()
+
+		if form.Valid() {
+			if err := app.services.successCriteria.Add(r.Context(), goalID, userID, form); err != nil {
+				app.renderError(w, r, err, "Error saving success criteria.")
+				return
+			}
+		}
+	}
+
+	app.putFlash(r.Context(), "Success criteria updated!")
 	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
 }

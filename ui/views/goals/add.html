@@ -4,13 +4,13 @@
   preferences to track your progress.
 {{ end }}
 {{ define "main" }}
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2 w-full">
     <a href="/goals" class="text-base-content/50 hover:text-base-content"
       >&larr; Back</a
     >
     <form action="/goals/add/" method="post">
       <fieldset
-        class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-4"
       >
         <legend class="fieldset-legend">Add Goal</legend>
 
@@ -20,7 +20,7 @@
           name="goal"
           value="{{ .Form.Goal }}"
           type="text"
-          class="input"
+          class="input w-full"
           placeholder="My goal"
         />
         {{ with .Form.Errors.goal }}
@@ -35,7 +35,7 @@
           id="due"
           name="due"
           type="date"
-          class="input"
+          class="input w-full"
           value="{{ .Form.Due }}"
         />
         {{ with .Form.Errors.due }}
@@ -66,24 +66,26 @@
         {{ end }}
 
 
-        <button type="submit" class="btn btn-neutral mt-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-plus-icon lucide-plus"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-          </svg>
-          Add
-        </button>
+        <div>
+          <button type="submit" class="btn btn-neutral mt-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-plus-icon lucide-plus"
+            >
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+            Add
+          </button>
+        </div>
       </fieldset>
     </form>
   </div>
