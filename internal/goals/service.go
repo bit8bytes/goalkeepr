@@ -35,10 +35,10 @@ func NewService(db *sql.DB) *Service {
 	}
 }
 
-func (s *Service) Add(ctx context.Context, userID int, form *Form) error {
+func (s *Service) Add(ctx context.Context, userID int, form *Form) (int, error) {
 	dueTime, err := time.Parse(HTMLDateFormat, form.Due)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	visibleToPublic := int64(0)
@@ -46,7 +46,7 @@ func (s *Service) Add(ctx context.Context, userID int, form *Form) error {
 		visibleToPublic = 1
 	}
 
-	_, err = s.queries.Create(ctx, CreateParams{
+	goal, err := s.queries.Create(ctx, CreateParams{
 		UserID: int64(userID),
 		Goal: sql.NullString{
 			String: form.Goal,
@@ -65,7 +65,10 @@ func (s *Service) Add(ctx context.Context, userID int, form *Form) error {
 			Valid: true,
 		},
 	})
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return int(goal.ID), nil
 }
 
 func (s *Service) GetAll(ctx context.Context, userID int) ([]Goal, error) {

@@ -42,8 +42,8 @@ erDiagram
         INTEGER user_id FK
         TEXT goal "NULLABLE"
         INTEGER due "Unix epoch, NULLABLE"
-        INTEGER visible_to_public "Default 0"
-        INTEGER achieved "Default 0"
+        INTEGER visible_to_public "DEFAULT 0"
+        INTEGER achieved "DEFAULT 0"
     }
 
     share {
@@ -58,9 +58,21 @@ erDiagram
         REAL expiry
     }
 
+    success_criteria {
+        INTEGER id PK
+        INTEGER goal_id FK
+        INTEGER user_id FK
+        TEXT description
+        INTEGER completed "DEFAULT 0"
+        INTEGER position "NULLABLE"
+        INTEGER created_at "Unix epoch"
+    }
+
     users ||--o{ goals : "has (CASCADE)"
     users ||--o{ share : "creates (CASCADE)"
     users ||--|| branding : "has (CASCADE)"
+    goals ||--o{ success_criteria : "has (CASCADE)"
+    users ||--o{ success_criteria : "owns (CASCADE)"
 ```
 
 ## Scaling

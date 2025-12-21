@@ -10,6 +10,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/sanitize"
 	"github.com/bit8bytes/goalkeepr/internal/share"
+	"github.com/bit8bytes/goalkeepr/internal/success_criteria"
 	"github.com/bit8bytes/goalkeepr/ui/page"
 )
 
@@ -22,7 +23,26 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 
 	goalViews := make([]goals.View, len(goalList))
 	for i, goal := range goalList {
-		goalViews[i] = goal.ToView()
+		goalView := goal.ToView()
+
+		// Fetch success criteria for this goal
+		criteria, err := app.services.successCriteria.GetAllByGoal(r.Context(), int(goal.ID), getUserID(r))
+		if err != nil && err != sql.ErrNoRows {
+			app.renderError(w, r, err, "Error loading success criteria.")
+			return
+		}
+
+		// Count total and completed criteria
+		goalView.TotalCriteriaCount = len(criteria)
+		completedCount := 0
+		for _, c := range criteria {
+			if c.Completed.Valid && c.Completed.Int64 == 1 {
+				completedCount++
+			}
+		}
+		goalView.CompletedCriteriaCount = completedCount
+
+		goalViews[i] = goalView
 	}
 
 	branding, err := app.services.branding.GetByUserID(r.Context(), getUserID(r))
@@ -73,12 +93,14 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := app.services.goals.Add(r.Context(), getUserID(r), form); err != nil {
+	goalID, err := app.services.goals.Add(r.Context(), getUserID(r), form)
+	if err != nil {
 		app.renderError(w, r, err, "Error saving your goal.")
 		return
 	}
 
-	http.Redirect(w, r, "/goals", http.StatusSeeOther)
+	// Redirect to edit page to add success criteria
+	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
 }
 
 func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +131,23 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 		VisibleToPublic: goalView.VisibleToPublic,
 	}
 
+	// Load success criteria for this goal
+	criteria, err := app.services.successCriteria.GetAllByGoal(r.Context(), goalID, getUserID(r))
+	if err != nil && err != sql.ErrNoRows {
+		app.renderError(w, r, err, "Error loading success criteria.")
+		return
+	}
+
+	criteriaViews := make([]success_criteria.View, len(criteria))
+	for i, c := range criteria {
+		criteriaViews[i] = c.ToView()
+	}
+
 	data.Form = editGoalForm
+	data.Data = map[string]any{
+		"SuccessCriteria": criteriaViews,
+		"GoalID":          goalID,
+	}
 	data.Flash = app.flash(r.Context())
 	app.render(w, r, http.StatusOK, page.EditGoal, data)
 }
@@ -246,4 +284,106 @@ func (app *app) deleteShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/goals/share/", http.StatusSeeOther)
+}
+
+// Success Criteria Handlers
+
+func (app *app) postAddSuccessCriteria(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		app.renderError(w, r, err, "Error processing form data.")
+		return
+	}
+
+	rawDescription := r.PostForm.Get("new-criteria")
+	if rawDescription == "" {
+		rawDescription = r.PostForm.Get("description")
+	}
+	rawPosition := r.PostForm.Get("position")
+
+	position := 0
+	if rawPosition != "" {
+		position, _ = strconv.Atoi(rawPosition)
+	}
+
+	form := &success_criteria.Form{
+		GoalID:      goalID,
+		Description: sanitize.Text(rawDescription),
+		Position:    position,
+	}
+
+	form.Validate()
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, page.EditGoal, data)
+		return
+	}
+
+	if err := app.services.successCriteria.Add(r.Context(), goalID, getUserID(r), form); err != nil {
+		app.renderError(w, r, err, "Error saving success criteria.")
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
+}
+
+func (app *app) postToggleSuccessCriteria(w http.ResponseWriter, r *http.Request) {
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
+
+	criteriaID, err := strconv.Atoi(r.PathValue("criteriaId"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid criteria ID.")
+		return
+	}
+
+	if _, err := app.services.successCriteria.Toggle(r.Context(), criteriaID, getUserID(r)); err != nil {
+		app.renderError(w, r, err, "Error toggling success criteria.")
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
+}
+
+func (app *app) deleteSuccessCriteria(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		app.renderError(w, r, err, "Error processing form data.")
+		return
+	}
+
+	// Support _method override for DELETE
+	method := r.PostForm.Get("_method")
+	if method != "DELETE" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	goalID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid goal ID.")
+		return
+	}
+
+	criteriaID, err := strconv.Atoi(r.PathValue("criteriaId"))
+	if err != nil {
+		app.renderError(w, r, err, "Invalid criteria ID.")
+		return
+	}
+
+	if _, err := app.services.successCriteria.Delete(r.Context(), criteriaID, getUserID(r)); err != nil {
+		app.renderError(w, r, err, "Error deleting success criteria.")
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/goals/%d", goalID), http.StatusSeeOther)
 }

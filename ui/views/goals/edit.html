@@ -12,7 +12,7 @@
       <fieldset
         class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
       >
-        <legend class="fieldset-legend">Edit Goal</legend>
+        <legend class="fieldset-legend">Goal</legend>
 
         <label for="goal" class="label">Goal</label>
         <input
@@ -86,7 +86,6 @@
           </label>
         {{ end }}
 
-
         <div class="grid grid-cols-4 gap-1 mt-4">
           <button class="btn btn-neutral col-span-3">
             <svg
@@ -105,7 +104,7 @@
             </svg>
             Save
           </button>
-          <button class="btn" hx-delete="/goals/{{ .Form.ID }}">
+          <button type="button" class="btn" hx-delete="/goals/{{ .Form.ID }}">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -126,6 +125,89 @@
         </div>
       </fieldset>
     </form>
+
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 mt-4"
+    >
+      <legend class="fieldset-legend">Success Criteria</legend>
+
+      {{ if .Data.SuccessCriteria }}
+        <ul class="space-y-2 mb-3">
+          {{ range .Data.SuccessCriteria }}
+            <li class="flex gap-2 items-center">
+              <form
+                action="/goals/{{ $.Data.GoalID }}/criteria/{{ .ID }}/toggle"
+                method="post"
+                class="contents"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  {{ if .Completed }}checked{{ end }}
+                  onchange="this.form.submit()"
+                />
+              </form>
+              <span
+                class="{{ if .Completed }}line-through text-base-content/50{{ end }} flex-1"
+              >
+                {{ .Description }}
+              </span>
+              <form
+                action="/goals/{{ $.Data.GoalID }}/criteria/{{ .ID }}"
+                method="post"
+                class="contents"
+              >
+                <input type="hidden" name="_method" value="DELETE" />
+                <button
+                  type="submit"
+                  class="btn btn-ghost btn-xs"
+                  onclick="return confirm('Delete this item?')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </form>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+
+      <form
+        action="/goals/{{ .Data.GoalID }}/criteria"
+        method="post"
+        class="flex gap-2"
+      >
+        <input
+          type="text"
+          name="description"
+          placeholder="Add a success criterion..."
+          class="input input-sm flex-1"
+        />
+        <button type="submit" class="btn btn-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14M12 5v14" />
+          </svg>
+          Add
+        </button>
+      </form>
+    </fieldset>
   </div>
 
   {{ with .Flash }}

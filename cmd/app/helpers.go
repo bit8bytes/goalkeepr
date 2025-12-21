@@ -190,8 +190,8 @@ func (l *limiters) get(ip string) *rate.Limiter {
 
 	limiter, exists := l.m[ip]
 	if !exists {
-		// Allow 60 requests per minute (1 request per second with burst of 10)
-		limiter = rate.NewLimiter(rate.Every(time.Second), 10)
+		// Allow 60 requests per minute (1 request per second with burst of 5)
+		limiter = rate.NewLimiter(rate.Every(time.Second), 5)
 
 		l.m[ip] = limiter
 	}

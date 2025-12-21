@@ -12,6 +12,7 @@ import (
 	"github.com/bit8bytes/goalkeepr/internal/goals"
 	"github.com/bit8bytes/goalkeepr/internal/logger"
 	"github.com/bit8bytes/goalkeepr/internal/share"
+	"github.com/bit8bytes/goalkeepr/internal/success_criteria"
 	"github.com/bit8bytes/goalkeepr/internal/users"
 
 	"github.com/alexedwards/scs/sqlite3store"
@@ -29,10 +30,11 @@ const (
 )
 
 type services struct {
-	users    *users.Service
-	goals    *goals.Service
-	branding *branding.Service
-	share    *share.Service
+	users           *users.Service
+	goals           *goals.Service
+	branding        *branding.Service
+	share           *share.Service
+	successCriteria *success_criteria.Service
 }
 
 // newApp creates and initializes a new app instance with the given configuration.
@@ -87,10 +89,11 @@ func newApp(cfg *flags.Options) (*app, error) {
 	// q := &queries{}
 
 	services := &services{
-		users:    users.NewService(db),
-		goals:    goals.NewService(db),
-		branding: branding.NewService(db),
-		share:    share.NewService(db),
+		users:           users.NewService(db),
+		goals:           goals.NewService(db),
+		branding:        branding.NewService(db),
+		share:           share.NewService(db),
+		successCriteria: success_criteria.NewService(db),
 	}
 
 	app := &app{

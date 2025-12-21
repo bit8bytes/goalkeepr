@@ -33,6 +33,9 @@ func (app *app) routes() http.Handler {
 	mux.Handle("GET /goals/{id}", app.withAuth(app.getEditGoal))
 	mux.Handle("POST /goals/{id}", app.withAuth(app.postEditGoal))
 	mux.Handle("DELETE /goals/{id}", app.withAuth(app.deleteEditGoal))
+	mux.Handle("POST /goals/{id}/criteria", app.withAuth(app.postAddSuccessCriteria))
+	mux.Handle("POST /goals/{id}/criteria/{criteriaId}/toggle", app.withAuth(app.postToggleSuccessCriteria))
+	mux.Handle("POST /goals/{id}/criteria/{criteriaId}", app.withAuth(app.deleteSuccessCriteria))
 
 	mux.Handle("GET /settings", app.withAuth(app.getSettings))
 	mux.Handle("POST /settings/branding", app.withAuth(app.postBranding))

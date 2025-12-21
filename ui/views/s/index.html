@@ -20,7 +20,8 @@
         <li>
           {{ if eq (mod $index 2) 0 }}
             <div class="timeline-start timeline-box">
-              {{ $goal.Year }}: {{ $goal.Goal }}
+              <div class="font-bold">{{ $goal.Goal }}</div>
+              <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
             </div>
             {{ if ne $index 0 }}
               <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
@@ -59,11 +60,15 @@
               </svg>
             </div>
             <div class="timeline-end timeline-box">
-              {{ $goal.Year }}: {{ $goal.Goal }}
+              <div class="font-bold">{{ $goal.Goal }}</div>
+              <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
             </div>
-            {{ if ne $index (sub (len $.Data.Goals) 1) }}
-              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-            {{ end }}
+
+            <hr
+              class="{{ if ne $index (sub (len $.Data.Goals) 1) }}
+                {{ if $goal.Achieved }}bg-primary{{ end }}
+              {{ end }}"
+            />
           {{ end }}
         </li>
       {{ end }}

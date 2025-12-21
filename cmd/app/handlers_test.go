@@ -48,7 +48,7 @@ func TestPublicPages(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			code, _, _ := ts.get(t, tt.urlPath)
-			assert.Equal(t, code, tt.wantCode)
+			assert.Equal(t, tt.wantCode, code)
 		})
 	}
 }
@@ -93,7 +93,7 @@ func TestAuthRequiredPages(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			code, _, _ := ts.get(t, tt.urlPath)
-			assert.Equal(t, code, tt.wantCode)
+			assert.Equal(t, tt.wantCode, code)
 		})
 	}
 }
@@ -140,7 +140,7 @@ func TestAuthenticatedUserAccess(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			code, _, _ := ts.get(t, tt.urlPath)
-			assert.Equal(t, code, tt.wantCode)
+			assert.Equal(t, tt.wantCode, code)
 		})
 	}
 }
@@ -152,7 +152,7 @@ func TestSignupHandler(t *testing.T) {
 
 	t.Run("GET displays signup form", func(t *testing.T) {
 		code, _, body := ts.get(t, "/signup")
-		assert.Equal(t, code, http.StatusOK)
+		assert.Equal(t, http.StatusOK, code)
 		assert.Contains(t, body, `<form action="/signup" method="post" novalidate>`)
 	})
 
@@ -163,8 +163,8 @@ func TestSignupHandler(t *testing.T) {
 		form.Add("repeat_password", "validpassword")
 
 		code, headers, _ := ts.postForm(t, "/signup", form)
-		assert.Equal(t, code, http.StatusSeeOther)
-		assert.Equal(t, headers.Get("Location"), "/goals")
+		assert.Equal(t, http.StatusSeeOther, code)
+		assert.Equal(t, "/goals", headers.Get("Location"))
 	})
 
 	t.Run("POST with mismatched passwords shows error", func(t *testing.T) {
@@ -174,7 +174,7 @@ func TestSignupHandler(t *testing.T) {
 		form.Add("repeat_password", "different123")
 
 		code, _, body := ts.postForm(t, "/signup", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "Passwords do not match")
 	})
 
@@ -185,7 +185,7 @@ func TestSignupHandler(t *testing.T) {
 		form.Add("repeat_password", "validpassword")
 
 		code, _, body := ts.postForm(t, "/signup", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "This field must be a valid email address")
 	})
 
@@ -196,7 +196,7 @@ func TestSignupHandler(t *testing.T) {
 		form.Add("repeat_password", "short")
 
 		code, _, body := ts.postForm(t, "/signup", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "This field must be at least 8 characters long")
 	})
 }
@@ -208,11 +208,11 @@ func TestSignInRateLimit(t *testing.T) {
 
 	for i := 1; i <= 5; i++ {
 		code, _, _ := ts.postForm(t, "/signin", url.Values{})
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 	}
 
 	code, _, body := ts.postForm(t, "/signin", url.Values{})
-	assert.Equal(t, code, http.StatusTooManyRequests)
+	assert.Equal(t, http.StatusTooManyRequests, code)
 	assert.Contains(t, body, "Slow Down There!")
 }
 
@@ -223,11 +223,11 @@ func TestSignupRateLimit(t *testing.T) {
 
 	for i := 1; i <= 5; i++ {
 		code, _, _ := ts.postForm(t, "/signup", url.Values{})
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 	}
 
 	code, _, body := ts.postForm(t, "/signup", url.Values{})
-	assert.Equal(t, code, http.StatusTooManyRequests)
+	assert.Equal(t, http.StatusTooManyRequests, code)
 	assert.Contains(t, body, "Slow Down There!")
 }
 
@@ -311,7 +311,7 @@ func TestSigninHandler(t *testing.T) {
 
 	t.Run("GET displays signin form", func(t *testing.T) {
 		code, _, body := ts.get(t, "/signin")
-		assert.Equal(t, code, http.StatusOK)
+		assert.Equal(t, http.StatusOK, code)
 		assert.Contains(t, body, `<form action="/signin" method="post" novalidate>`)
 	})
 
@@ -323,8 +323,8 @@ func TestSigninHandler(t *testing.T) {
 		form.Add("password", "testpassword")
 
 		code, headers, _ := ts.postForm(t, "/signin", form)
-		assert.Equal(t, code, http.StatusSeeOther)
-		assert.Equal(t, headers.Get("Location"), "/goals")
+		assert.Equal(t, http.StatusSeeOther, code)
+		assert.Equal(t, "/goals", headers.Get("Location"))
 	})
 
 	t.Run("POST with invalid email shows error", func(t *testing.T) {
@@ -333,7 +333,7 @@ func TestSigninHandler(t *testing.T) {
 		form.Add("password", "testpassword")
 
 		code, _, body := ts.postForm(t, "/signin", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "Invalid email or password")
 	})
 
@@ -343,7 +343,7 @@ func TestSigninHandler(t *testing.T) {
 		form.Add("password", "wrongpassword")
 
 		code, _, body := ts.postForm(t, "/signin", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "Invalid email or password")
 	})
 
@@ -351,7 +351,7 @@ func TestSigninHandler(t *testing.T) {
 		form := url.Values{}
 
 		code, _, body := ts.postForm(t, "/signin", form)
-		assert.Equal(t, code, http.StatusUnprocessableEntity)
+		assert.Equal(t, http.StatusUnprocessableEntity, code)
 		assert.Contains(t, body, "This field cannot be blank")
 	})
 }

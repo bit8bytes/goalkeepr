@@ -28,3 +28,10 @@ sql:
       go:
         package: "share"
         out: "internal/share"
+  - engine: "sqlite"
+    queries: "cmd/app/db/queries/success_criteria.sql"
+    schema: "cmd/app/db/migrations/*success*.sql"
+    gen:
+      go:
+        package: "success_criteria"
+        out: "internal/success_criteria"
