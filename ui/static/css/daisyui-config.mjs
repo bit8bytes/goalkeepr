@@ -1,5 +1,5 @@
 import daisyui from './daisyui.mjs';
 
 export default daisyui({
-  themes: ["night --default"]
+  themes: ["nord --default"]
 });
