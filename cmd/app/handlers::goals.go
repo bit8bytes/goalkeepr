@@ -46,27 +46,43 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		goalViews[i] = goalView
 	}
 
+	// Calculate default due dates for adding goals after each existing goal
+	goalDefaultDues := make(map[int64]string)
+	for i := range goalViews {
+		var nextDue time.Time
+
+		if goalList[i].Due.Valid {
+			currentDue := time.Unix(goalList[i].Due.Int64, 0)
+
+			// Check if there's a next goal with a valid due date
+			if i+1 < len(goalList) && goalList[i+1].Due.Valid {
+				nextGoalDue := time.Unix(goalList[i+1].Due.Int64, 0)
+				// Calculate midpoint between current and next goal
+				diff := nextGoalDue.Sub(currentDue)
+				nextDue = currentDue.Add(diff / 2)
+			} else {
+				// No next goal, default to 3 months after current goal
+				nextDue = currentDue.AddDate(0, 3, 0)
+			}
+		} else {
+			// Current goal has no due date, use 3 months from now
+			nextDue = time.Now().AddDate(0, 3, 0)
+		}
+
+		goalDefaultDues[goalList[i].ID] = nextDue.Format(HTMLDateFormat)
+	}
+
 	branding, err := app.services.branding.GetByUserID(r.Context(), getUserID(r))
 	if err != nil && err != sql.ErrNoRows {
 		app.renderError(w, r, err, "Error loading your branding settings.")
 		return
 	}
 
-	// Calculate default due date for new goals (3 months after latest goal)
-	defaultDue := time.Now()
-	if len(goalList) > 0 {
-		latestGoal := goalList[len(goalList)-1]
-		if latestGoal.Due.Valid {
-			latestDueTime := time.Unix(latestGoal.Due.Int64, 0)
-			defaultDue = latestDueTime.AddDate(0, 3, 0)
-		}
-	}
-
 	forms := map[string]any{
-		"Goals":      goalViews,
-		"Branding":   branding.ToView(),
-		"Now":        time.Now(),
-		"DefaultDue": defaultDue.Format(HTMLDateFormat),
+		"Goals":           goalViews,
+		"Branding":        branding.ToView(),
+		"Now":             time.Now(),
+		"GoalDefaultDues": goalDefaultDues,
 	}
 
 	data := app.newTemplateData(r)

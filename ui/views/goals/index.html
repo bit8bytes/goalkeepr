@@ -95,8 +95,9 @@
       <li>
         <hr />
         <div class="timeline-middle">
+          {{ $lastGoal := index .Data.Goals (sub (len .Data.Goals) 1) }}
           <a
-            href="/goals/add/?default_due={{ .Data.DefaultDue }}"
+            href="/goals/add/?default_due={{ index .Data.GoalDefaultDues $lastGoal.ID }}"
             preload="mouseover"
             class="tooltip tooltip-bottom btn btn-circle btn-ghost w-8 h-8 opacity-50"
             data-tip="Add Goal"
