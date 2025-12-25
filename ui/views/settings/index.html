@@ -4,12 +4,12 @@
   your Goalkeepr profile settings.
 {{ end }}
 {{ define "main" }}
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2 w-full">
     <a href="/goals" class="text-base-content/50 hover:text-base-content"
       >&larr; Back</a
     >
     <fieldset
-      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+      class="fieldset bg-base-200 border-base-300 rounded-box border p-4"
     >
       <legend class="fieldset-legend">Account</legend>
 
@@ -17,7 +17,7 @@
       <input
         id="email"
         type="email"
-        class="input"
+        class="input w-full"
         value="{{ .Form.Account.Email }}"
         disabled
       />
@@ -25,7 +25,7 @@
 
     <form action="/settings/branding" method="post">
       <fieldset
-        class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-4"
       >
         <legend class="fieldset-legend">Branding</legend>
 
@@ -34,7 +34,7 @@
           id="title"
           name="title"
           type="text"
-          class="input"
+          class="input w-full"
           value="{{ .Form.Branding.Title }}"
           placeholder="Title"
         />
@@ -44,12 +44,12 @@
           id="description"
           name="description"
           type="text"
-          class="textarea"
+          class="textarea w-full"
           placeholder="Description"
-        >{{ .Form.Branding.Description }}
-      </textarea>
+        >{{ .Form.Branding.Description }}</textarea>
 
-        <button type="submit" class="btn mt-4">
+        <div class="mt-2">
+        <button type="submit" class="btn btn-success btn-sm w-fit">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -64,24 +64,28 @@
           >
             <path d="M20 6 9 17l-5-5" />
           </svg>
-          Save Branding
+          Save
         </button>
+      </div>
       </fieldset>
     </form>
 
-    <fieldset
-      class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
-    >
-      <legend class="fieldset-legend">Danger Zone</legend>
+    <fieldset class="fieldset bg-base-200 border-error rounded-box border p-4 mt-4">
+      <legend class="fieldset-legend text-error">Danger Zone</legend>
 
-      <div class="flex justify-between items-center">
-        <p>Delete Your Account</p>
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-base-content">Delete your account</p>
+          <p class="text-sm text-base-content/70 mt-1">
+            Once you delete your account, there is no going back.
+          </p>
+        </div>
         <button
           class="btn btn-error btn-sm"
           hx-delete="/settings/delete-user"
           hx-confirm="Are you sure you want to delete your account? This action cannot be undone."
-        >
-          DELETE
+          >
+          Delete Account
         </button>
       </div>
     </fieldset>

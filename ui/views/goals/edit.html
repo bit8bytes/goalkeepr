@@ -20,8 +20,9 @@
         name="goal"
         value="{{ .Form.Goal }}"
         type="text"
-        class="input w-full"
+        class="input w-full {{ if .Form.Achieved }}opacity-60 cursor-not-allowed bg-base-300{{ end }}"
         placeholder="My goal"
+        {{ if .Form.Achieved }}readonly{{ end }}
       />
       {{ with .Form.Errors.goal }}
         <label class="label">
@@ -30,7 +31,7 @@
       {{ end }}
 
       <label for="description" class="label">Description</label>
-      <textarea id="description" class="textarea w-full" name="description">{{ .Form.Description }}</textarea>
+      <textarea id="description" class="textarea w-full {{ if .Form.Achieved }}opacity-60 cursor-not-allowed bg-base-300{{ end }}" name="description" {{ if .Form.Achieved }}readonly{{ end }}>{{ .Form.Description }}</textarea>
       {{ with .Form.Errors.description }}
         <label class="label">
           <span class="label-text-alt text-error">{{ . }}</span>
@@ -43,8 +44,9 @@
         id="due"
         name="due"
         type="date"
-        class="input w-full"
+        class="input w-full {{ if .Form.Achieved }}opacity-60 cursor-not-allowed bg-base-300{{ end }}"
         value="{{ .Form.Due }}"
+        {{ if .Form.Achieved }}readonly{{ end }}
       />
       {{ with .Form.Errors.due }}
         <label class="label">
@@ -74,12 +76,13 @@
       {{ end }}
 
 
-      <label for="visible" class="label">
+      <label for="visible" class="label {{ if .Form.Achieved }}opacity-50 cursor-not-allowed{{ end }}">
         <input
           id="visible"
           type="checkbox"
           name="visible"
           class="checkbox"
+          {{ if .Form.Achieved }}onclick="return false;"{{ end }}
           {{ if
             .Form.VisibleToPublic
           }}
@@ -125,12 +128,13 @@
       {{ if .Data.SuccessCriteria }}
         <ul class="space-y-2 mb-3">
           {{ range .Data.SuccessCriteria }}
-            <li class="flex gap-2 items-center p-3 bg-base-100 rounded-lg border border-base-300">
+            <li class="flex gap-2 items-center p-3 bg-base-100 rounded-lg border border-base-300 {{ if $.Form.Achieved }}opacity-60{{ end }}">
               <input
                 type="checkbox"
                 name="criteria_{{ .ID }}"
                 class="checkbox checkbox-sm"
                 {{ if .Completed }}checked{{ end }}
+                {{ if $.Form.Achieved }}onclick="return false;"{{ end }}
               />
               <span class="flex-1">
                 {{ .Description }}
@@ -139,6 +143,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs"
+                {{ if $.Form.Achieved }}disabled{{ end }}
                 onclick="if(confirm('Delete this item?')) { this.previousElementSibling.value='1'; this.closest('form').submit(); }"
               >
                 <svg
@@ -158,6 +163,7 @@
         </ul>
       {{ end }}
 
+      {{ if not .Form.Achieved }}
       <div class="flex gap-2 mb-3">
         <input
           type="text"
@@ -186,6 +192,7 @@
           Save
         </button>
       </div>
+      {{ end }}
     </fieldset>
   </form>
 
@@ -215,7 +222,7 @@
       <div
         role="alert"
         remove-me="3s"
-        class="absolute bottom-2 md:right-2 right-6 alert alert-success"
+        class="fixed bottom-4 right-4 alert alert-success z-50"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
