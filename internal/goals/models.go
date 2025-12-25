@@ -15,4 +15,5 @@ type Goal struct {
 	Due             sql.NullInt64
 	VisibleToPublic sql.NullInt64
 	Achieved        sql.NullInt64
+	Description     sql.NullString
 }

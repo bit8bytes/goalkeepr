@@ -111,6 +111,7 @@ func (app *app) postAddGoal(w http.ResponseWriter, r *http.Request) {
 
 	form := &goals.Form{
 		Goal:            sanitize.Text(r.PostForm.Get("goal")),
+		Description:     sanitize.Text(r.PostForm.Get("description")),
 		Due:             sanitize.Date(r.PostForm.Get("due")),
 		VisibleToPublic: r.PostForm.Get("visible") == "on",
 	}
@@ -156,6 +157,7 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	editGoalForm := &goals.Form{
 		ID:              int(goalView.ID),
 		Goal:            goalView.Goal,
+		Description:     goalView.Description,
 		Due:             goalView.Due.Format(HTMLDateFormat),
 		Achieved:        goalView.Achieved,
 		VisibleToPublic: goalView.VisibleToPublic,
@@ -195,6 +197,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rawGoal := r.PostForm.Get("goal")
+	rawDescription := r.PostForm.Get("description")
 	rawDue := r.PostForm.Get("due")
 	visibleToPublic := r.PostForm.Get("visible") == "on"
 	achieved := r.PostForm.Get("achieved") == "on"
@@ -202,6 +205,7 @@ func (app *app) postEditGoal(w http.ResponseWriter, r *http.Request) {
 	form := &goals.Form{
 		ID:              goalID,
 		Goal:            sanitize.Text(rawGoal),
+		Description:     sanitize.Text(rawDescription),
 		Due:             sanitize.Date(rawDue),
 		VisibleToPublic: visibleToPublic,
 		Achieved:        achieved,

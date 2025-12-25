@@ -13,6 +13,7 @@ const HTMLDateFormat = "2006-01-02"
 type Form struct {
 	ID                  int    `form:"id"`
 	Goal                string `form:"goal"`
+	Description         string `form:"description"`
 	Due                 string `form:"due"`
 	Achieved            bool   `form:"achieved"`
 	VisibleToPublic     bool   `form:"visible"`
@@ -50,6 +51,10 @@ func (s *Service) Add(ctx context.Context, userID int, form *Form) (int, error) 
 		UserID: int64(userID),
 		Goal: sql.NullString{
 			String: form.Goal,
+			Valid:  true,
+		},
+		Description: sql.NullString{
+			String: form.Description,
 			Valid:  true,
 		},
 		Due: sql.NullInt64{
@@ -110,6 +115,10 @@ func (s *Service) Update(ctx context.Context, goalID, userID int, form *Form) (i
 	result, err := s.queries.Update(ctx, UpdateParams{
 		Goal: sql.NullString{
 			String: form.Goal,
+			Valid:  true,
+		},
+		Description: sql.NullString{
+			String: form.Description,
 			Valid:  true,
 		},
 		Due: sql.NullInt64{

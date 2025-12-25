@@ -9,7 +9,7 @@ sql:
         out: "internal/users"
   - engine: "sqlite"
     queries: "cmd/app/db/queries/goals.sql"
-    schema: "cmd/app/db/migrations/*goal*.sql"
+    schema: "cmd/app/db/migrations/*goals*.sql"
     gen:
       go:
         package: "goals"

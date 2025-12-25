@@ -29,6 +29,14 @@
         </label>
       {{ end }}
 
+      <label for="description" class="label">Description</label>
+      <textarea id="description" class="textarea w-full" name="description">{{ .Form.Description }}</textarea>
+      {{ with .Form.Errors.description }}
+        <label class="label">
+          <span class="label-text-alt text-error">{{ . }}</span>
+        </label>
+      {{ end }}
+
 
       <label for="due" class="label">Due</label>
       <input

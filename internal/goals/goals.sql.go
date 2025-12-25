@@ -11,14 +11,15 @@ import (
 )
 
 const create = `-- name: Create :one
-INSERT INTO goals (user_id, goal, due, visible_to_public, achieved)
-VALUES (?, ?, ?, ?, ?)
-RETURNING id, user_id, goal, due, visible_to_public, achieved
+INSERT INTO goals (user_id, goal, description, due, visible_to_public, achieved)
+VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, user_id, goal, due, visible_to_public, achieved, description
 `
 
 type CreateParams struct {
 	UserID          int64
 	Goal            sql.NullString
+	Description     sql.NullString
 	Due             sql.NullInt64
 	VisibleToPublic sql.NullInt64
 	Achieved        sql.NullInt64
@@ -28,6 +29,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (Goal, error) {
 	row := q.db.QueryRowContext(ctx, create,
 		arg.UserID,
 		arg.Goal,
+		arg.Description,
 		arg.Due,
 		arg.VisibleToPublic,
 		arg.Achieved,
@@ -40,6 +42,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (Goal, error) {
 		&i.Due,
 		&i.VisibleToPublic,
 		&i.Achieved,
+		&i.Description,
 	)
 	return i, err
 }
@@ -59,7 +62,7 @@ func (q *Queries) Delete(ctx context.Context, arg DeleteParams) (sql.Result, err
 }
 
 const get = `-- name: Get :one
-SELECT id, user_id, goal, due, visible_to_public, achieved FROM goals
+SELECT id, user_id, goal, due, visible_to_public, achieved, description FROM goals
 WHERE id = ? AND user_id = ?
 `
 
@@ -78,12 +81,13 @@ func (q *Queries) Get(ctx context.Context, arg GetParams) (Goal, error) {
 		&i.Due,
 		&i.VisibleToPublic,
 		&i.Achieved,
+		&i.Description,
 	)
 	return i, err
 }
 
 const getAll = `-- name: GetAll :many
-SELECT id, user_id, goal, due, visible_to_public, achieved FROM goals
+SELECT id, user_id, goal, due, visible_to_public, achieved, description FROM goals
 WHERE user_id = ?
 ORDER BY due ASC
 `
@@ -104,6 +108,7 @@ func (q *Queries) GetAll(ctx context.Context, userID int64) ([]Goal, error) {
 			&i.Due,
 			&i.VisibleToPublic,
 			&i.Achieved,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -119,7 +124,7 @@ func (q *Queries) GetAll(ctx context.Context, userID int64) ([]Goal, error) {
 }
 
 const getAllShared = `-- name: GetAllShared :many
-SELECT id, user_id, goal, due, visible_to_public, achieved FROM goals
+SELECT id, user_id, goal, due, visible_to_public, achieved, description FROM goals
 WHERE user_id = ? AND visible_to_public = 1
 ORDER BY due ASC
 `
@@ -140,6 +145,7 @@ func (q *Queries) GetAllShared(ctx context.Context, userID int64) ([]Goal, error
 			&i.Due,
 			&i.VisibleToPublic,
 			&i.Achieved,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -156,12 +162,13 @@ func (q *Queries) GetAllShared(ctx context.Context, userID int64) ([]Goal, error
 
 const update = `-- name: Update :execresult
 UPDATE goals
-SET goal = ?, due = ?, visible_to_public = ?, achieved = ?
+SET goal = ?, description = ?, due = ?, visible_to_public = ?, achieved = ?
 WHERE id = ? AND user_id = ?
 `
 
 type UpdateParams struct {
 	Goal            sql.NullString
+	Description     sql.NullString
 	Due             sql.NullInt64
 	VisibleToPublic sql.NullInt64
 	Achieved        sql.NullInt64
@@ -172,6 +179,7 @@ type UpdateParams struct {
 func (q *Queries) Update(ctx context.Context, arg UpdateParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, update,
 		arg.Goal,
+		arg.Description,
 		arg.Due,
 		arg.VisibleToPublic,
 		arg.Achieved,

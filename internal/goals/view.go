@@ -6,6 +6,7 @@ type View struct {
 	ID                     int64
 	UserID                 int64
 	Goal                   string
+	Description            string
 	Year                   string
 	Due                    time.Time
 	VisibleToPublic        bool
@@ -19,6 +20,7 @@ func (g *Goal) ToView() View {
 		ID:              g.ID,
 		UserID:          g.UserID,
 		Goal:            g.Goal.String,
+		Description:     g.Description.String,
 		VisibleToPublic: g.VisibleToPublic.Int64 == 1,
 		Achieved:        g.Achieved.Int64 == 1,
 	}

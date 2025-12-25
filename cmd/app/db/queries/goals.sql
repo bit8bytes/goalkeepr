@@ -1,6 +1,6 @@
 -- name: Create :one
-INSERT INTO goals (user_id, goal, due, visible_to_public, achieved)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO goals (user_id, goal, description, due, visible_to_public, achieved)
+VALUES (?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: Get :one
@@ -19,7 +19,7 @@ ORDER BY due ASC;
 
 -- name: Update :execresult
 UPDATE goals
-SET goal = ?, due = ?, visible_to_public = ?, achieved = ?
+SET goal = ?, description = ?, due = ?, visible_to_public = ?, achieved = ?
 WHERE id = ? AND user_id = ?;
 
 -- name: Delete :execresult
