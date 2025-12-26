@@ -4151,9 +4151,6 @@
   .bottom-4 {
     bottom: calc(var(--spacing) * 4);
   }
-  .left-4 {
-    left: calc(var(--spacing) * 4);
-  }
   .file-input {
     @layer daisyui.l1.l2.l3 {
       cursor: pointer;
@@ -6853,6 +6850,10 @@
     }
     border-style: dashed;
   }
+  .border-dashed {
+    --tw-border-style: dashed;
+    border-style: dashed;
+  }
   .badge-ghost {
     @layer daisyui.l1.l2 {
       border-color: var(--color-base-200);
@@ -6923,11 +6924,20 @@
       border-color: currentColor;
     }
   }
+  .border-accent {
+    border-color: var(--color-accent);
+  }
   .border-base-300 {
     border-color: var(--color-base-300);
   }
   .border-error {
     border-color: var(--color-error);
+  }
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+  .border-secondary {
+    border-color: var(--color-secondary);
   }
   .menu-active {
     :where(:not(ul, details, .menu-title, .btn))& {

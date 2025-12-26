@@ -24,7 +24,8 @@
             <a
               href="/goals/{{ $goal.ID }}"
               preload="mouseover"
-              class="timeline-start timeline-box bg-base-200
+              class="timeline-start timeline-box bg-base-200 border-primary
+                {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
                 {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
                 {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
               {{ if gt $goal.TotalCriteriaCount 0 }}
@@ -73,7 +74,8 @@
             <a
               href="/goals/{{ $goal.ID }}"
               preload="mouseover"
-              class="timeline-end timeline-box bg-base-200
+              class="timeline-end timeline-box bg-base-200 border-primary
+                {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
                 {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
                 {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
               {{ if gt $goal.TotalCriteriaCount 0 }}
