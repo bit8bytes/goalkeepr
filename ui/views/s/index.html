@@ -19,7 +19,7 @@
       {{ range $index, $goal := .Data.Goals }}
         <li>
           {{ if eq (mod $index 2) 0 }}
-            <div class="timeline-start timeline-box">
+            <div class="timeline-start timeline-box bg-base-200">
               <div class="font-bold">{{ $goal.Goal }}</div>
               <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
             </div>
@@ -59,7 +59,7 @@
                 />
               </svg>
             </div>
-            <div class="timeline-end timeline-box">
+            <div class="timeline-end timeline-box bg-base-200">
               <div class="font-bold">{{ $goal.Goal }}</div>
               <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
             </div>
