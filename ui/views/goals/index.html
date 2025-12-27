@@ -18,32 +18,45 @@
   </div>
   {{ if .Data.Goals }}
     <ul class="timeline timeline-vertical">
-      {{ range $index, $goal := .Data.Goals }}
+      {{ range $groupIndex, $group := .Data.GoalGroups }}
+        {{ $allAchieved := true }}
+        {{ range $goal := $group.Goals }}
+          {{ if not $goal.Achieved }}
+            {{ $allAchieved = false }}
+          {{ end }}
+        {{ end }}
         <li>
-          {{ if eq (mod $index 2) 0 }}
-            <a
-              href="/goals/{{ $goal.ID }}"
-              preload="mouseover"
-              class="timeline-start timeline-box bg-base-200 border-primary
-                {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
-                {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
-                {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
-              {{ if gt $goal.TotalCriteriaCount 0 }}
-                data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+          {{ if ne $groupIndex 0 }}
+            <hr class="{{ if $allAchieved }}bg-success{{ end }}" />
+          {{ end }}
+
+          {{ if eq (mod $groupIndex 2) 0 }}
+            <!-- Group on left side (timeline-start) -->
+            <div class="timeline-start space-y-2">
+              <div class="text-xs text-base-content/50">{{ $group.Date.Format "January 2, 2006" }}</div>
+              {{ range $goalIndex, $goal := $group.Goals }}
+                <a
+                  href="/goals/{{ $goal.ID }}"
+                  preload="mouseover"
+                  class="block timeline-box bg-base-200 border-l
+                    {{ if $goal.Achieved }}border-success{{ else }}border-primary{{ end }}
+                    {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
+                    {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }}
+                    {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
+                  {{ if gt $goal.TotalCriteriaCount 0 }}
+                    data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+                  {{ end }}
+                >
+                  <div class="font-bold">{{ $goal.Goal }}</div>
+                </a>
               {{ end }}
-            >
-              <div class="font-bold">{{ $goal.Goal }}</div>
-              <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
-            </a>
-            {{ if ne $index 0 }}
-              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
-            {{ end }}
+            </div>
             <div class="timeline-middle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
+                class="h-5 w-5 {{ if $allAchieved }}text-success{{ end }}"
               >
                 <path
                   fill-rule="evenodd"
@@ -52,17 +65,17 @@
                 />
               </svg>
             </div>
-            {{ if ne $index (sub (len $.Data.Goals) 1) }}
-              <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            {{ if ne $groupIndex (sub (len $.Data.GoalGroups) 1) }}
+              <hr class="{{ if $allAchieved }}bg-success{{ end }}" />
             {{ end }}
           {{ else }}
-            <hr class="{{ if $goal.Achieved }}bg-primary{{ end }}" />
+            <!-- Group on right side (timeline-end) -->
             <div class="timeline-middle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                class="{{ if $goal.Achieved }}text-primary{{ end }} h-5 w-5"
+                class="h-5 w-5 {{ if $allAchieved }}text-success{{ end }}"
               >
                 <path
                   fill-rule="evenodd"
@@ -71,26 +84,28 @@
                 />
               </svg>
             </div>
-            <a
-              href="/goals/{{ $goal.ID }}"
-              preload="mouseover"
-              class="timeline-end timeline-box bg-base-200 border-primary
-                {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
-                {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }} 
-                {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
-              {{ if gt $goal.TotalCriteriaCount 0 }}
-                data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+            <div class="timeline-end space-y-2">
+              <div class="text-xs text-base-content/50">{{ $group.Date.Format "January 2, 2006" }}</div>
+              {{ range $goalIndex, $goal := $group.Goals }}
+                <a
+                  href="/goals/{{ $goal.ID }}"
+                  preload="mouseover"
+                  class="block timeline-box bg-base-200 border-l
+                    {{ if $goal.Achieved }}border-success{{ else }}border-primary{{ end }}
+                    {{ if $goal.VisibleToPublic }}{{else}}border-dashed{{ end }}
+                    {{ if gt $goal.TotalCriteriaCount 0 }}tooltip{{ end }}
+                    {{if eq $goal.TotalCriteriaCount $goal.CompletedCriteriaCount }}tooltip-primary{{end}}"
+                  {{ if gt $goal.TotalCriteriaCount 0 }}
+                    data-tip="{{ $goal.CompletedCriteriaCount }} of {{ $goal.TotalCriteriaCount }} success criteria achieved"
+                  {{ end }}
+                >
+                  <div class="font-bold">{{ $goal.Goal }}</div>
+                </a>
               {{ end }}
-            >
-              <div class="font-bold">{{ $goal.Goal }}</div>
-              <div class="text-base-content/50">{{ $goal.Due.Format "January 2, 2006" }}</div>
-            </a>
-
-            <hr
-              class="{{ if ne $index (sub (len $.Data.Goals) 1) }}
-                {{ if $goal.Achieved }}bg-primary{{ end }}
-              {{ end }}"
-            />
+            </div>
+            {{ if ne $groupIndex (sub (len $.Data.GoalGroups) 1) }}
+              <hr class="{{ if $allAchieved }}bg-success{{ end }}" />
+            {{ end }}
           {{ end }}
         </li>
       {{ end }}

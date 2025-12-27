@@ -46,6 +46,32 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		goalViews[i] = goalView
 	}
 
+	// Group goals by date for visual grouping in timeline
+	type GoalGroup struct {
+		Date  time.Time
+		Goals []goals.View
+	}
+
+	goalGroups := []GoalGroup{}
+	var currentGroup *GoalGroup
+
+	for _, goalView := range goalViews {
+		// Normalize the date to start of day for comparison
+		goalDate := time.Date(goalView.Due.Year(), goalView.Due.Month(), goalView.Due.Day(), 0, 0, 0, 0, time.UTC)
+
+		// Check if we need to start a new group
+		if currentGroup == nil || !currentGroup.Date.Equal(goalDate) {
+			goalGroups = append(goalGroups, GoalGroup{
+				Date:  goalDate,
+				Goals: []goals.View{goalView},
+			})
+			currentGroup = &goalGroups[len(goalGroups)-1]
+		} else {
+			// Add to current group
+			currentGroup.Goals = append(currentGroup.Goals, goalView)
+		}
+	}
+
 	// Calculate default due dates for adding goals after each existing goal
 	goalDefaultDues := make(map[int64]string)
 	for i := range goalViews {
@@ -80,6 +106,7 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 
 	forms := map[string]any{
 		"Goals":           goalViews,
+		"GoalGroups":      goalGroups,
 		"Branding":        branding.ToView(),
 		"Now":             time.Now(),
 		"GoalDefaultDues": goalDefaultDues,
