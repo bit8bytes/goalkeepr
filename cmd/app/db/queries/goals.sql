@@ -10,7 +10,7 @@ WHERE id = ? AND user_id = ?;
 -- name: GetAll :many
 SELECT * FROM goals
 WHERE user_id = ?
-ORDER BY due ASC;
+ORDER BY due DESC;
 
 -- name: GetAllShared :many
 SELECT * FROM goals

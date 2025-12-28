@@ -89,7 +89,7 @@ func (q *Queries) Get(ctx context.Context, arg GetParams) (Goal, error) {
 const getAll = `-- name: GetAll :many
 SELECT id, user_id, goal, due, visible_to_public, achieved, description FROM goals
 WHERE user_id = ?
-ORDER BY due ASC
+ORDER BY due DESC
 `
 
 func (q *Queries) GetAll(ctx context.Context, userID int64) ([]Goal, error) {
