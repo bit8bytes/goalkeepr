@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/alexedwards/scs/sqlite3store v0.0.0-20251002162104-209de6e426de
 	github.com/alexedwards/scs/v2 v2.9.0
-	github.com/bit8bytes/toolbox v0.7.6
+	github.com/bit8bytes/toolbox v0.7.8
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/otel/trace v1.39.0
