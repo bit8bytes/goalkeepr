@@ -57,11 +57,6 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Group goals by date for visual grouping in timeline
-	type GoalGroup struct {
-		Date  time.Time
-		Goals []goals.View
-	}
-
 	goalGroups := []GoalGroup{}
 	var currentGroup *GoalGroup
 
@@ -89,21 +84,31 @@ func (app *app) getShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Data = map[string]any{
-		"Goals":      goalViews,
-		"GoalGroups": goalGroups,
-		"Branding":   b.ToView(),
+	data.Data = SharePageData{
+		Goals:      goalViews,
+		GoalGroups: goalGroups,
+		Branding:   b.ToView(),
 	}
 
 	app.render(w, r, http.StatusOK, page.Share, data)
 }
 
+type getHealthzData struct {
+	Status string `json:"status"`
+	System system `json:"system"`
+}
+
+type system struct {
+	Env     string `json:"env"`
+	Version string `json:"version"`
+}
+
 func (app *app) getHealthz(w http.ResponseWriter, r *http.Request) {
-	data := map[string]any{
-		"status": "available",
-		"system_info": map[string]string{
-			"env":     app.config.Env.String(),
-			"version": vcs.Version(),
+	data := getHealthzData{
+		Status: "available",
+		System: system{
+			Env:     app.config.Env.String(),
+			Version: vcs.Version(),
 		},
 	}
 

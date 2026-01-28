@@ -51,15 +51,15 @@ func (app *app) renderError(w http.ResponseWriter, r *http.Request, err error, u
 	app.logger.ErrorContext(r.Context(), "error occured", slog.String("msg", err.Error()))
 
 	data := app.newTemplateData(r)
-	data.Data = map[string]any{
-		"TraceID": r.Context().Value(TraceIdKey).(string),
-		"Message": userMessage,
+	data.Data = ErrorPageData{
+		TraceID: r.Context().Value(TraceIdKey).(string),
+		Message: userMessage,
 	}
 
 	app.render(w, r, http.StatusInternalServerError, page.Error, data)
 }
 
-func (app *app) writeJSON(w http.ResponseWriter, status int, data map[string]any, headers http.Header) error {
+func (app *app) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t") // json.Marshal is faster then MarshalIndent
 	if err != nil {
 		return err

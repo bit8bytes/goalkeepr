@@ -47,11 +47,6 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Group goals by date for visual grouping in timeline
-	type GoalGroup struct {
-		Date  time.Time
-		Goals []goals.View
-	}
-
 	goalGroups := []GoalGroup{}
 	var currentGroup *GoalGroup
 
@@ -104,16 +99,14 @@ func (app *app) getGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	forms := map[string]any{
-		"Goals":           goalViews,
-		"GoalGroups":      goalGroups,
-		"Branding":        branding.ToView(),
-		"Now":             time.Now(),
-		"GoalDefaultDues": goalDefaultDues,
-	}
-
 	data := app.newTemplateData(r)
-	data.Data = forms
+	data.Data = GoalsPageData{
+		Goals:           goalViews,
+		GoalGroups:      goalGroups,
+		Branding:        branding.ToView(),
+		Now:             time.Now(),
+		GoalDefaultDues: goalDefaultDues,
+	}
 	app.render(w, r, http.StatusOK, page.Goals, data)
 }
 
@@ -203,9 +196,9 @@ func (app *app) getEditGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Form = editGoalForm
-	data.Data = map[string]any{
-		"SuccessCriteria": criteriaViews,
-		"GoalID":          goalID,
+	data.Data = EditGoalPageData{
+		SuccessCriteria: criteriaViews,
+		GoalID:          goalID,
 	}
 	data.Flash = app.flash(r.Context())
 	app.render(w, r, http.StatusOK, page.EditGoal, data)
@@ -297,9 +290,9 @@ func (app *app) getShareGoals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Data = map[string]any{
-		"Links": shareViews,
-		"Host":  r.Host,
+	data.Data = ShareGoalsPageData{
+		Links: shareViews,
+		Host:  r.Host,
 	}
 
 	app.render(w, r, http.StatusOK, page.ShareGoals, data)

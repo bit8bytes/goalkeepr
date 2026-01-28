@@ -11,8 +11,15 @@ import (
 )
 
 type templateData struct {
-	Metadata        metadata
-	Form            any
+	Metadata metadata
+	Form     any
+	// Data contains page-specific data. Expected types:
+	// - SharePageData: for the public share page
+	// - GoalsPageData: for the user's goals page
+	// - EditGoalPageData: for the edit goal page
+	// - ShareGoalsPageData: for the share goals management page
+	// - ErrorPageData: for error pages
+	// - map[string]any: for settings page (Account, Branding forms)
 	Data            any
 	IsAuthenticated bool
 	Flash           *flash
