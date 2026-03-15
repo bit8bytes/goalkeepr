@@ -11,7 +11,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.42.0
 	golang.org/x/crypto v0.48.0
 	golang.org/x/time v0.15.0
-	modernc.org/sqlite v1.44.3
+	modernc.org/sqlite v1.46.1
 )
 
 require (
